@@ -1,0 +1,33 @@
+# .github/workflows/build.yml
+# This is the GitHub Action script to build the Electron app in the cloud.
+
+name: Build AI Assistant Installer
+
+on:
+  push:
+    branches: [ "main" ] # This action runs every time you push to the 'main' branch.
+
+jobs:
+  build:
+    runs-on: windows-latest # Use a fresh Windows virtual machine for the build.
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' # Use a stable version of Node.js
+
+    - name: Install Root Dependencies
+      run: npm install
+
+    - name: Build the Application
+      run: npm run build
+
+    - name: Upload Installer Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ai-assistant-installer
+        path: release/AI Assistant Setup 1.0.0.exe
