@@ -1,0 +1,12 @@
+{
+  "owner": "owner",
+  "repo": "repo",
+  "fetched_at": "2025-11-18T23:40:36.828Z",
+  "license": {
+    "key": "mit",
+    "name": "MIT License",
+    "spdx_id": "MIT"
+  },
+  "description": "desc",
+  "stars": 10
+}

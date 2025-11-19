@@ -1,0 +1,12 @@
+{
+  "owner": "mockowner",
+  "repo": "mockrepo",
+  "fetched_at": "2025-11-19T00:40:05.140Z",
+  "license": {
+    "key": "mit",
+    "name": "MIT License",
+    "spdx_id": "MIT"
+  },
+  "description": "mock",
+  "stars": 5
+}

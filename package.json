@@ -1,0 +1,38 @@
+{
+  "name": "ai-assistant-desktop",
+  "version": "1.0.0",
+  "description": "AI Assistant Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "npm run build:frontend && electron-builder",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.yourname.ai-assistant",
+    "productName": "AI Assistant",
+    "files": [
+      "main.js",
+      "backend/**/*",
+      "frontend/dist/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "owner": "memochou1993",
+  "repo": "gpt-ai-assistant",
+  "fetched_at": "2025-11-18T20:38:03.036Z",
+  "license": {
+    "key": "mit",
+    "name": "MIT License",
+    "spdx_id": "MIT",
+    "url": "https://api.github.com/licenses/mit",
+    "node_id": "MDc6TGljZW5zZTEz"
+  },
+  "description": "OpenAI + LINE + Vercel = GPT AI Assistant",
+  "stars": 7743
+}

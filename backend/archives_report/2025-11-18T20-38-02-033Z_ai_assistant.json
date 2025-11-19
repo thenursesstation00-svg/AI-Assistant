@@ -1,0 +1,37 @@
+{
+  "query": "ai assistant",
+  "runTime": "2025-11-18T20-38-02-033Z",
+  "total_count": 88223,
+  "items": [
+    {
+      "full_name": "memochou1993/gpt-ai-assistant",
+      "url": "https://github.com/memochou1993/gpt-ai-assistant",
+      "description": "OpenAI + LINE + Vercel = GPT AI Assistant",
+      "stars": 7743,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "permissive": true,
+      "readme": "fetched"
+    },
+    {
+      "full_name": "TabbyML/tabby",
+      "url": "https://github.com/TabbyML/tabby",
+      "description": "Self-hosted AI coding assistant",
+      "stars": 32450,
+      "license": {
+        "key": "other",
+        "name": "Other",
+        "spdx_id": "NOASSERTION",
+        "url": null,
+        "node_id": "MDc6TGljZW5zZTA="
+      },
+      "permissive": false,
+      "readme": null
+    }
+  ]
+}

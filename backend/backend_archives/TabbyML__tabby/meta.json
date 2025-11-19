@@ -1,0 +1,14 @@
+{
+  "owner": "TabbyML",
+  "repo": "tabby",
+  "fetched_at": "2025-11-18T20:38:03.615Z",
+  "license": {
+    "key": "other",
+    "name": "Other",
+    "spdx_id": "NOASSERTION",
+    "url": null,
+    "node_id": "MDc6TGljZW5zZTA="
+  },
+  "description": "Self-hosted AI coding assistant",
+  "stars": 32450
+}

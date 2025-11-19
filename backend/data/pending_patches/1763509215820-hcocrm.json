@@ -1,0 +1,7 @@
+{
+  "id": "1763509215820-hcocrm",
+  "patch": "some config\npassword = supersecretapikey12345",
+  "description": "sensitive test",
+  "created_at": "2025-11-18T23:40:15.820Z",
+  "sensitive": true
+}

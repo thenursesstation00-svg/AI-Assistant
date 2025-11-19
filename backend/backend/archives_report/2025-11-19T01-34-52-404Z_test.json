@@ -1,0 +1,20 @@
+{
+  "query": "test",
+  "runTime": "2025-11-19T01-34-52-404Z",
+  "total_count": 1,
+  "items": [
+    {
+      "full_name": "owner/repo",
+      "url": "https://github.com/owner/repo",
+      "description": "desc",
+      "stars": 10,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT"
+      },
+      "permissive": true,
+      "readme": "fetched"
+    }
+  ]
+}
