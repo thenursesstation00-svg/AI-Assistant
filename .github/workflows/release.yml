@@ -1,0 +1,120 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Install root dependencies
+        run: |
+          npm ci
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm ci
+          npm test
+      - name: Package Electron App
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          node --version
+          echo "Validating GH token access to repo..."
+          node ./scripts/validate_gh_token.js
+          echo "Running electron-builder package..."
+          npm run build
+      - name: List release artifacts
+        shell: powershell
+        run: |
+          Write-Host "Release dir listing:"
+          if (Test-Path release) { Get-ChildItem -Recurse -Force release | Format-Table -AutoSize } else { Write-Host "No release dir found" }
+      - name: Show build.publish in package.json
+        shell: powershell
+        run: |
+          if (Test-Path package.json) { (Get-Content package.json -Raw) | ConvertFrom-Json | Select-Object -ExpandProperty build | ConvertTo-Json -Depth 5 | Write-Host } else { Write-Host "package.json not found" }
+      - name: Create GitHub Release and upload assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  integration_redis:
+    # Manual run only (workflow_dispatch) job to validate Redis-backed integration tests
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Install backend deps
+        run: |
+          cd backend
+          npm ci
+      - name: Run backend tests with Redis
+        env:
+          REDIS_URL: redis://localhost:6379
+        run: |
+          cd backend
+          npm test
+
+  dry_run_release:
+    # Manual run only job to test release upload permissions without creating a real release
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Install root dependencies
+        run: |
+          npm ci
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+      - name: Package Electron App (dry run)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          node ./scripts/validate_gh_token.js
+          npm run build
+      - name: Test draft release creation
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/**/*
+          draft: true
+          tag_name: dry-run-${{ github.run_number }}
+          name: "Dry Run Release ${{ github.run_number }}"
+          body: "This is a test release to validate upload permissions. Safe to delete."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

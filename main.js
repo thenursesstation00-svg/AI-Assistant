@@ -1,80 +1,128 @@
-// main.js - Final version for both Development and Production
+// main.js (FINAL "No Spawn" Version)
 
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron');
+let autoUpdater;
+try {
+  // electron-updater is optional for local/dev runs. If it's not installed, fall back to a noop implementation.
+  ({ autoUpdater } = require('electron-updater'));
+} catch (e) {
+  console.warn('electron-updater not available; auto-update features disabled.');
+  autoUpdater = {
+    autoDownload: false,
+    checkForUpdates: async () => ({}) ,
+    quitAndInstall: () => {},
+    on: () => {}
+  };
+}
 const path = require('path');
-const { spawn } = require('child_process');
-
-let backendProcess; // This will hold the backend server process
-
-/**
- * This function starts the backend Node.js server.
- * It's configured to run 'node src/server.js' from the 'backend' directory.
- */
-function startBackend() {
-  // Define the path to the backend's main server file.
-  const backendPath = path.join(__dirname, 'backend', 'src', 'server.js');
-  
-  // Use 'spawn' to run the node command directly. This is the correct way for production.
-  backendProcess = spawn('node', [backendPath], {
-    // Set the working directory for the process to the 'backend' folder.
-    cwd: path.join(__dirname, 'backend'),
-    // Use a shell to run the command, which helps with pathing on Windows.
-    shell: true
-  });
-
-  // Log any output from the backend server to the console for debugging.
-  backendProcess.stdout.on('data', (data) => {
-    console.log(`Backend Output: ${data}`);
-  });
-
-  // Log any errors from the backend server.
-  backendProcess.stderr.on('data', (data) => {
-    console.error(`Backend Error: ${data}`);
-  });
+let keytar;
+try {
+  keytar = require('keytar');
+} catch (e) {
+  console.warn('keytar not available. Secure key storage will be disabled.');
 }
 
-/**
- * This function creates the main application window.
- */
 function createWindow() {
-  // Create a new browser window with specified dimensions.
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
   });
 
-  // The 'app.isPackaged' property is true only when the app has been built into an installer.
-  if (app.isPackaged) {
-    // --- PRODUCTION MODE ---
-    // When the app is packaged, we load the 'index.html' file directly from the disk.
-    mainWindow.loadFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
-  } else {
-    // --- DEVELOPMENT MODE ---
-    // When running in development (with 'npm start'), we load from the Vite dev server.
-    mainWindow.loadURL('http://localhost:5173' );
-  }
+  // This version ALWAYS loads from the frontend/dist folder.
+  // It assumes the backend is running separately.
+  mainWindow.loadFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  
+  // Optional: Uncomment the line below if you want developer tools to open.
+  // mainWindow.webContents.openDevTools();
+
+  // Simple application menu (replace default menus)
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'App',
+      submenu: [
+        { label: 'Check for updates', click: () => { autoUpdater.checkForUpdates(); } },
+        { type: 'separator' },
+        { role: 'toggledevtools' }
+      ]
+    }
+  ];
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+
+  // Auto-updater events -> forward to renderer via IPC
+  autoUpdater.autoDownload = false;
+  autoUpdater.on('update-available', (info) => { mainWindow.webContents.send('update-available', info); });
+  autoUpdater.on('update-not-available', () => { mainWindow.webContents.send('update-not-available'); });
+  autoUpdater.on('update-downloaded', (info) => { mainWindow.webContents.send('update-downloaded', info); });
+  autoUpdater.on('error', (err) => { mainWindow.webContents.send('update-error', { message: err && err.message }); });
+
+  ipcMain.on('apply-update', () => {
+    // Quit and install the update
+    autoUpdater.quitAndInstall();
+  });
+  ipcMain.on('check-for-updates', () => {
+    autoUpdater.checkForUpdates();
+  });
+
+  // Secure backend API key storage via OS keychain (if keytar is available)
+  const SERVICE_NAME = 'ai-assistant';
+  const ACCOUNT_NAME = 'backend_api_key';
+
+  ipcMain.handle('secure-backend-key-get', async () => {
+    try {
+      if (!keytar) return null;
+      const val = await keytar.getPassword(SERVICE_NAME, ACCOUNT_NAME);
+      return val || null;
+    } catch (err) {
+      console.error('Error getting backend key from keytar', err);
+      return null;
+    }
+  });
+
+  ipcMain.handle('secure-backend-key-set', async (event, key) => {
+    try {
+      if (!keytar) return false;
+      if (!key) {
+        await keytar.deletePassword(SERVICE_NAME, ACCOUNT_NAME);
+        return true;
+      }
+      await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, key);
+      return true;
+    } catch (err) {
+      console.error('Error setting backend key via keytar', err);
+      return false;
+    }
+  });
+
+  ipcMain.handle('secure-backend-key-delete', async () => {
+    try {
+      if (!keytar) return false;
+      await keytar.deletePassword(SERVICE_NAME, ACCOUNT_NAME);
+      return true;
+    } catch (err) {
+      console.error('Error deleting backend key via keytar', err);
+      return false;
+    }
+  });
 }
 
-// This method is called once Electron is ready.
 app.whenReady().then(() => {
-  // In production, we need to start the backend server ourselves.
-  if (app.isPackaged) {
-    startBackend();
-  }
-  
-  // Create the application window.
   createWindow();
 });
 
-// This event listener handles closing the application.
 app.on('window-all-closed', () => {
-  // On Windows & Linux (i.e., not macOS), quitting the app should stop everything.
   if (process.platform !== 'darwin') {
-    // If the backend process exists, make sure to terminate it.
-    if (backendProcess) {
-      backendProcess.kill();
-    }
-    // Quit the main application.
     app.quit();
   }
 });

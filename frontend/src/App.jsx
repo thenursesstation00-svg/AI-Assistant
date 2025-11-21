@@ -1,41 +1,114 @@
-import React, { useState } from 'react';
+// src/App.jsx (Final Version with UI Polish and Conversation Memory)
+
+import React, { useState, useEffect, useRef } from 'react';
 import { sendChat } from './api';
-import Admin from './Admin';
+import FirstRunModal from './FirstRunModal';
+import { getBackendApiKeyAsync } from './config';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import './Chat.css';
+import Settings from './Settings';
+import Search from './Search';
 
-export default function App(){
-  const [messages, setMessages] = useState([{role:'assistant', content: 'Hello!'}]);
-  const [input, setInput] = useState('');
 
-  const send = async () => {
-    if(!input.trim()) return;
-    const userMsg = {role:'user', content: input};
-    const newMsgs = [...messages, userMsg];
-    setMessages(newMsgs);
-    setInput('');
-    try{
-      const resp = await sendChat(newMsgs, {});
-      const text = resp && resp.output_text ? resp.output_text : JSON.stringify(resp).slice(0,400);
-      setMessages(prev => [...prev, {role:'assistant', content: text}]);
-    }catch(e){
-      setMessages(prev => [...prev, {role:'assistant', content: 'Error: '+e.message}]);
+function App( ) {
+  const [messages, setMessages] = useState([
+    { sender: 'ai', text: "Hello! I'm your AI Assistant. How can I help you today?" }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messageListRef = useRef(null);
+  const [showFirstRun, setShowFirstRun] = useState(false);
+
+  useEffect(() => {
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(()=>{
+    let mounted = true;
+    (async ()=>{
+      try{
+        const k = await getBackendApiKeyAsync();
+        if(mounted && !k) setShowFirstRun(true);
+      }catch(e){ /* ignore */ }
+    })();
+    return ()=>{ mounted = false };
+  },[]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (inputValue.trim() === '') return;
+
+    const userMessage = { sender: 'user', text: inputValue };
+    
+    // Create the new history with the user's latest message
+    const newHistory = [...messages, userMessage];
+    setMessages(newHistory); // Update the UI immediately
+    setIsLoading(true);
+    setInputValue('');
+
+    try {
+      // Format the history for the Anthropic API
+      // The API expects { role: 'user' | 'assistant', content: '...' }
+      const apiFormattedHistory = newHistory.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      }));
+
+      // Send the entire formatted history to the backend
+      const response = await sendChat(apiFormattedHistory);
+      const aiMessage = { text: response.reply || response.output_text || JSON.stringify(response), sender: 'ai' };
+      
+      // Add the AI's response to the state
+      setMessages(prevMessages => [...prevMessages, aiMessage]);
+
+    } catch (error) {
+      console.error("Error fetching AI reply:", error);
+      const errorMessage = { text: "Sorry, an error occurred. Please check the backend console.", sender: 'ai' };
+      setMessages(prevMessages => [...prevMessages, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div style={{maxWidth:800, margin:'40px auto', fontFamily:'sans-serif'}}>
-      <h1>AI Assistant</h1>
-      <Admin />
-      <div style={{minHeight:300, border:'1px solid #ddd', padding:12}}>
-        {messages.map((m,i)=> <div key={i} style={{textAlign: m.role==='user'?'right':'left', margin:6}}>
-          <div style={{display:'inline-block',padding:8, borderRadius:8, background: m.role==='user'?'#3b82f6':'#111827', color:'#fff'}}>
-            {m.content}
+    <>
+    <div className="app-container">
+      <div style={{ position: 'absolute', top: 12, right: 12 }}>
+        <Settings />
+      </div>
+      <div style={{ position: 'absolute', top: 12, left: 12 }}>
+        <Search />
+      </div>
+      <div className="message-list" ref={messageListRef}>
+        {messages.map((message, index) => (
+          <div key={index} className={`message ${message.sender}`}>
+            {message.sender === 'ai' ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
+            ) : (
+              message.text
+            )}
           </div>
-        </div>)}
+        ))}
+        {isLoading && <div className="message ai"><i>Typing...</i></div>}
       </div>
-      <div style={{display:'flex', marginTop:12}} >
-        <input value={input} onChange={e=>setInput(e.target.value)} style={{flex:1, padding:8}} />
-        <button onClick={send} style={{marginLeft:8, padding:'8px 12px'}}>Send</button>
-      </div>
+
+      <form className="input-form" onSubmit={handleSendMessage}>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Type your message..."
+          disabled={isLoading}
+        />
+        <button type="submit" disabled={isLoading}>Send</button>
+      </form>
     </div>
+    <FirstRunModal visible={showFirstRun} onClose={()=>setShowFirstRun(false)} />
+    </>
   );
 }
+
+export default App;

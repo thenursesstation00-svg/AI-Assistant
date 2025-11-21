@@ -1,23 +1,17 @@
+// backend/src.js (FINAL "Smart Response" Version)
+
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
-// fallback: if dotenv didn't populate needed vars (e.g., started from different cwd), parse backend/.env directly
-try{
-  const envPath = path.resolve(process.cwd(), 'backend', '.env');
-  if(fs.existsSync(envPath)){
-    const raw = fs.readFileSync(envPath, 'utf8');
-    raw.split(/\r?\n/).forEach(l=>{
-      const m = l.match(/^\s*([A-Za-z0-9_]+)=(.*)$/);
-      if(m){
-        const k = m[1];
-        let v = m[2] || '';
-        v = v.trim();
-        if(v.startsWith('"') && v.endsWith('"')) v = v.slice(1,-1);
-        if(!process.env[k]) process.env[k] = v;
-      }
-    });
-  }
-}catch(e){/* ignore */}
+
+// --- START: AI Integration (use environment variable) ---
+const Anthropic = require('@anthropic-ai/sdk');
+const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+if(!anthropicApiKey){
+  console.warn('Warning: ANTHROPIC_API_KEY is not set. The /api/chat/test endpoint will fail without a valid key.');
+}
+const anthropic = new Anthropic({ apiKey: anthropicApiKey });
+// --- END: AI Integration ---
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -32,6 +26,7 @@ const uploadFileRoutes = require('./routes/uploadFile');
 const connectorsRoutes = require('./routes/connectors');
 const agentsRoutes = require('./routes/agents');
 const apiKeysRoutes = require('./routes/apiKeys');
+const searchRoutes = require('./routes/search');
 const { startAvWorker } = require('./workers/avWorker');
 
 const app = express();
@@ -40,7 +35,7 @@ app.use(express.json());
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173'
-}));
+} ));
 
 const limiter = rateLimit({
   windowMs: (parseInt(process.env.RATE_LIMIT_WINDOW || '15')) * 60 * 1000,
@@ -48,31 +43,64 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// routes
-// routes: require API key middleware before chat routes; middleware is a noop if not configured
+
+// --- TEST ENDPOINT WITH CONVERSATION MEMORY & SMART RESPONSE HANDLING ---
+app.post('/api/chat/test', async (req, res) => {
+  const conversationHistory = req.body.messages;
+
+  if (!conversationHistory || conversationHistory.length === 0) {
+    return res.status(400).json({ error: 'Message history is required' });
+  }
+
+  console.log('Received conversation history, calling Anthropic API...');
+
+  try {
+    const completion = await anthropic.messages.create({
+      model: "claude-3-haiku-20240307",
+      max_tokens: 1024,
+      messages: conversationHistory,
+    });
+
+    // --- THIS IS THE NEW, SMARTER LOGIC ---
+    let aiReply = '';
+    if (completion.content && completion.content[0] && typeof completion.content[0].text === 'string') {
+      // This handles the standard case where the response is simple text.
+      aiReply = completion.content[0].text;
+    } else {
+      // This is a fallback. If the AI sends a weird object, we'll stringify it
+      // so we can see what it is, instead of just getting '[object Object]'.
+      aiReply = "The AI sent a complex response. Here is the raw data:\n\n```json\n" + JSON.stringify(completion.content, null, 2) + "\n```";
+    }
+    // --- END OF NEW LOGIC ---
+
+    console.log('Extracted AI reply:', aiReply);
+    res.json({ reply: aiReply });
+
+  } catch (error) {
+    console.error("Error calling Anthropic API:", error);
+    res.status(500).json({ error: "Failed to get a response from the AI." });
+  }
+});
+// --- END: TEST ENDPOINT ---
+
+
+// Your existing routes remain untouched
 app.use('/api/chat', requireAPIKey, chatRoutes);
-// admin/archive and patch routes protected by API key as well
 app.use('/api/admin', requireAPIKey, adminRoutes);
 app.use('/api/patch', requireAPIKey, patchRoutes);
-// public reports listing is under admin protection too
 app.use('/api/admin', requireAPIKey, reportsRoutes);
-// upload patch endpoint (stores pending patches or applies safely)
 app.use('/api/admin', requireAPIKey, uploadPatchRoutes);
-// file upload endpoints
 app.use('/api/admin', requireAPIKey, uploadFileRoutes);
-// connectors scaffold
 app.use('/api/admin/connectors', requireAPIKey, connectorsRoutes);
-// agents framework
 app.use('/api/admin/agents', requireAPIKey, agentsRoutes);
-// api keys management
 app.use('/api/admin', requireAPIKey, apiKeysRoutes);
+app.use('/api/search', requireAPIKey, searchRoutes);
 
 app.get('/health', (req, res) => res.json({status:'ok', uptime: process.uptime()}));
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => console.log(`Backend listening on ${port}`));
 
-// start AV worker if enabled
 try{
   startAvWorker({ metaRoot: require('path').resolve(__dirname, '../../uploads/meta'), intervalMs: parseInt(process.env.AV_SCAN_INTERVAL_MS || '15000', 10) });
 }catch(e){ console.error('failed to start AV worker', e && e.message); }

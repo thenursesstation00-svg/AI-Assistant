@@ -1,0 +1,106 @@
+/* src/Chat.css */
+
+/* Main container for the entire application */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  background-color: #282c34;
+  color: white;
+  font-family: sans-serif;
+}
+
+/* The area where messages will be displayed */
+.message-list {
+  flex-grow: 1; /* Takes up all available space */
+  overflow-y: auto; /* Adds a scrollbar if content overflows */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between messages */
+}
+
+/* Styling for a single message bubble */
+.message {
+  padding: 10px 15px;
+  border-radius: 18px;
+  max-width: 70%;
+  word-wrap: break-word; /* Prevents long words from overflowing */
+}
+
+/* Styling for messages sent by the user */
+.message.user {
+  background-color: #007bff; /* Blue background */
+  color: white;
+  align-self: flex-end; /* Aligns to the right */
+  border-bottom-right-radius: 4px;
+}
+
+/* Styling for messages from the AI */
+.message.ai {
+  background-color: #444952; /* Dark grey background */
+  color: #e0e0e0;
+  align-self: flex-start; /* Aligns to the left */
+  border-bottom-left-radius: 4px;
+}
+
+/* The form at the bottom for typing messages */
+.input-form {
+  display: flex;
+  padding: 15px;
+  border-top: 1px solid #444;
+  gap: 10px;
+}
+
+/* The text input field */
+.input-form input {
+  flex-grow: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  background-color: #444952;
+  color: white;
+  font-size: 16px;
+}
+
+.input-form input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #007bff;
+}
+
+/* The send button */
+.input-form button {
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.input-form button:hover {
+  background-color: #0056b3;
+}
+/* --- ADD THIS TO THE END of src/Chat.css --- */
+
+/* Styling for code blocks inside an AI response */
+.message.ai pre {
+  background-color: #1e1e1e; /* A darker background for code */
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto; /* Add horizontal scroll for long lines */
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+}
+
+/* Styling for inline code snippets */
+.message.ai code {
+  background-color: #1e1e1e;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
