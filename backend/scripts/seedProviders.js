@@ -9,12 +9,54 @@ console.log('Seeding provider configurations...\n');
 
 const repo = new ProviderConfigRepository();
 
-// Check if Anthropic API key is available
-const anthropicKey = process.env.ANTHROPIC_API_KEY;
-if (!anthropicKey) {
-  console.warn('⚠ Warning: ANTHROPIC_API_KEY not found in environment variables');
+// Parse API keys (support both single key and array of keys)
+function parseApiKeys(envVar) {
+  if (!envVar) return null;
+  
+  // Try parsing as JSON array first
+  if (envVar.startsWith('[')) {
+    try {
+      const keys = JSON.parse(envVar);
+      if (Array.isArray(keys) && keys.length > 0) {
+        return keys; // Return array for multi-key support
+      }
+    } catch (e) {
+      console.warn(`Failed to parse as JSON array:`, e.message);
+    }
+  }
+  
+  // Single key
+  return envVar.trim();
+}
+
+// Helper to get display key (first key if array, or the key itself)
+function getDisplayKey(keys) {
+  if (Array.isArray(keys)) return keys[0];
+  return keys;
+}
+
+// Helper to format options for multi-key providers
+function formatProviderOptions(keys, baseOptions = {}) {
+  if (Array.isArray(keys)) {
+    return {
+      ...baseOptions,
+      apiKeys: keys,
+      keyRotation: true,
+    };
+  }
+  return baseOptions;
+}
+
+// Get API keys from environment
+const anthropicKeys = parseApiKeys(process.env.ANTHROPIC_API_KEYS) || 
+                     process.env.ANTHROPIC_API_KEY;
+
+if (!anthropicKeys) {
+  console.warn('⚠ Warning: ANTHROPIC_API_KEY(S) not found in environment variables');
   console.warn('  Set it with: $env:ANTHROPIC_API_KEY="your-key-here" (PowerShell)');
-  console.warn('  Provider will be created but inactive until you add the key via UI\n');
+  console.warn('  Or for multiple keys: $env:ANTHROPIC_API_KEYS=\'["key1","key2"]\'\n');
+} else if (Array.isArray(anthropicKeys)) {
+  console.log(`✓ Found ${anthropicKeys.length} Anthropic API keys for rotation\n`);
 }
 
 // Seed AI providers
@@ -23,15 +65,15 @@ const aiProviders = [
     provider_name: 'anthropic',
     display_name: 'Anthropic Claude',
     provider_type: 'ai',
-    api_key: anthropicKey,
+    api_key: getDisplayKey(anthropicKeys),
     api_endpoint: 'https://api.anthropic.com/v1',
-    default_model: 'claude-3-5-sonnet-20241022',
-    is_active: !!anthropicKey,
-    options: {
+    default_model: 'claude-sonnet-4-20250514',
+    is_active: !!anthropicKeys,
+    options: formatProviderOptions(anthropicKeys, {
       max_tokens: 4096,
       temperature: 1.0,
       supports_streaming: true,
-    }
+    })
   },
   {
     provider_name: 'openai',

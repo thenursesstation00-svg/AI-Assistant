@@ -153,6 +153,7 @@ app.use('/api/admin/connectors', requireAPIKey, connectorsRoutes);
 app.use('/api/admin/agents', requireAPIKey, agentsRoutes);
 app.use('/api/admin', requireAPIKey, apiKeysRoutes);
 app.use('/api/search', requireAPIKey, searchRoutes);
+app.use('/api/keypool', requireAPIKey, require('./routes/keypool'));
 
 app.get('/health', (req, res) => res.json({status:'ok', uptime: process.uptime()}));
 

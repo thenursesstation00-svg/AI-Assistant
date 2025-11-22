@@ -1,20 +1,32 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const BaseAIProvider = require('./base.provider');
+const keyPoolManager = require('../keyPoolManager');
 
 /**
  * Anthropic Claude Provider
- * Supports Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku
+ * Supports Claude 4 Sonnet, Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku
+ * With multi-key rotation and automatic failover
  */
 class AnthropicProvider extends BaseAIProvider {
   constructor(config) {
     super(config);
+    
+    // Initialize key pool if multiple keys provided
+    this.useKeyPool = false;
+    if (config.apiKeys && Array.isArray(config.apiKeys) && config.apiKeys.length > 1) {
+      keyPoolManager.initPool('anthropic', config.apiKeys);
+      this.useKeyPool = true;
+      console.log(`✓ Anthropic provider using key pool with ${config.apiKeys.length} keys`);
+    }
+    
     this.client = new Anthropic({ 
       apiKey: this.apiKey,
       baseURL: this.endpoint || 'https://api.anthropic.com/v1'
     });
     
-    // Cost per 1M tokens (updated pricing)
+    // Cost per 1M tokens (updated pricing including Claude 4)
     this.pricing = {
+      'claude-sonnet-4-20250514': { input: 3.00, output: 15.00 },
       'claude-3-5-sonnet-20241022': { input: 3.00, output: 15.00 },
       'claude-3-5-sonnet-20240620': { input: 3.00, output: 15.00 },
       'claude-3-opus-20240229': { input: 15.00, output: 75.00 },
@@ -24,10 +36,57 @@ class AnthropicProvider extends BaseAIProvider {
   }
   
   async sendMessage(messages, options = {}) {
-    try {
-      const model = options.model || this.defaultModel || 'claude-3-5-sonnet-20241022';
+    const model = options.model || this.defaultModel || 'claude-sonnet-4-20250514';
+    
+    // Use key pool if available
+    if (this.useKeyPool) {
+      return await this._sendWithKeyRotation(messages, options, model);
+    }
+    
+    // Standard single-key request
+    return await this._doSendMessage(this.apiKey, messages, options, model);
+  }
+  
+  async _sendWithKeyRotation(messages, options, model) {
+    let lastError;
+    const maxAttempts = 3; // Try up to 3 different keys
+    
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const apiKey = keyPoolManager.getKey('anthropic');
       
-      const response = await this.client.messages.create({
+      try {
+        const result = await this._doSendMessage(apiKey, messages, options, model);
+        keyPoolManager.markSuccess('anthropic', apiKey);
+        return result;
+      } catch (error) {
+        lastError = error;
+        
+        // Check if it's a rate limit error
+        const isRateLimit = error.message?.includes('rate_limit') || 
+                           error.message?.includes('429') ||
+                           error.status === 429;
+        
+        keyPoolManager.markFailure('anthropic', apiKey, error, isRateLimit);
+        
+        // If not rate limit, throw immediately
+        if (!isRateLimit && attempt === 0) {
+          throw error;
+        }
+        
+        // Continue to next key
+        console.log(`Attempt ${attempt + 1} failed, trying next key...`);
+      }
+    }
+    
+    // All attempts failed
+    throw lastError;
+  }
+  
+  async _doSendMessage(apiKey, messages, options, model) {
+    const client = new Anthropic({ apiKey });
+    
+    try {
+      const response = await client.messages.create({
         model,
         max_tokens: options.max_tokens || this.options.max_tokens || 4096,
         temperature: options.temperature !== undefined ? options.temperature : (this.options.temperature || 1.0),
@@ -38,7 +97,7 @@ class AnthropicProvider extends BaseAIProvider {
       return this.normalizeResponse(response);
     } catch (error) {
       console.error(`Anthropic API error:`, error.message);
-      throw new Error(`Anthropic request failed: ${error.message}`);
+      throw new Error(`Anthropic request failed: ${error.status || error.message}`);
     }
   }
   
@@ -87,6 +146,13 @@ class AnthropicProvider extends BaseAIProvider {
   
   async getSupportedModels() {
     return [
+      {
+        id: 'claude-sonnet-4-20250514',
+        name: 'Claude 4 Sonnet (Latest)',
+        context_window: 200000,
+        cost_per_1k_tokens: { input: 0.003, output: 0.015 },
+        capabilities: ['text', 'vision', 'tool_use', 'extended_thinking'],
+      },
       {
         id: 'claude-3-5-sonnet-20241022',
         name: 'Claude 3.5 Sonnet (New)',

@@ -52,9 +52,13 @@ class ProviderRegistry {
       throw new Error(`Provider '${providerName}' is not implemented. Available: ${Object.keys(this.providerClasses).join(', ')}`);
     }
     
+    // Extract apiKeys from options if present (for multi-key rotation)
+    const apiKeys = config.options?.apiKeys;
+    
     const provider = new ProviderClass({
       name: providerName,
       apiKey: config.api_key,
+      apiKeys: apiKeys, // Pass array of keys for rotation if available
       endpoint: config.api_endpoint,
       defaultModel: config.default_model,
       options: config.options,
@@ -62,7 +66,9 @@ class ProviderRegistry {
     
     // Cache the provider instance
     this.providers.set(providerName, provider);
-    console.log(`✓ Loaded provider: ${providerName} (model: ${config.default_model})`);
+    
+    const keyInfo = apiKeys ? ` with ${apiKeys.length} keys for rotation` : '';
+    console.log(`✓ Loaded provider: ${providerName} (model: ${config.default_model})${keyInfo}`);
     
     return provider;
   }
