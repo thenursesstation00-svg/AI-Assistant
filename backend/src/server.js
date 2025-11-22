@@ -1,5 +1,8 @@
 // backend/src.js (FINAL "Smart Response" Version)
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 function parseKeys(){
   // support BACKEND_API_KEYS as JSON string mapping key->role, e.g. '{"key1":"admin"}'
   const raw = process.env.BACKEND_API_KEYS;

@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// Load environment variables from .env file
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+
 const ProviderConfigRepository = require('../src/db/repositories/providerConfigRepo');
 
 console.log('Seeding provider configurations...\n');
