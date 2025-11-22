@@ -7,6 +7,11 @@
 /release
 /frontend/dist
 
+# Test artifacts and temporary files
+/backend/backend/
+/backend/data/pending_patches/
+/backend/tmp_av_test/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
