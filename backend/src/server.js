@@ -70,7 +70,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const chatRoutes = require('./routes/chat');
-const requireAPIKey = require('./middleware/apiKeyAuth');
+// requireAPIKey is defined above in this file
 const adminRoutes = require('./routes/admin');
 const patchRoutes = require('./routes/patch');
 const reportsRoutes = require('./routes/reports');
@@ -80,6 +80,7 @@ const connectorsRoutes = require('./routes/connectors');
 const agentsRoutes = require('./routes/agents');
 const apiKeysRoutes = require('./routes/apiKeys');
 const searchRoutes = require('./routes/search');
+const providersRoutes = require('./routes/providers');
 const { startAvWorker } = require('./workers/avWorker');
 
 const app = express();
@@ -139,6 +140,7 @@ app.post('/api/chat/test', async (req, res) => {
 
 // Your existing routes remain untouched
 app.use('/api/chat', requireAPIKey, chatRoutes);
+app.use('/api/providers', requireAPIKey, providersRoutes);
 app.use('/api/admin', requireAPIKey, adminRoutes);
 app.use('/api/patch', requireAPIKey, patchRoutes);
 app.use('/api/admin', requireAPIKey, reportsRoutes);
