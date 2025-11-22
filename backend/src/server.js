@@ -1,5 +1,58 @@
 // backend/src.js (FINAL "Smart Response" Version)
 
+function parseKeys(){
+  // support BACKEND_API_KEYS as JSON string mapping key->role, e.g. '{"key1":"admin"}'
+  const raw = process.env.BACKEND_API_KEYS;
+  if(!raw) return null;
+  try{ return JSON.parse(raw); }catch(e){ return null; }
+}
+
+function requireAPIKey(req, res, next){
+  // allow explicit disabling for quick dev (string 'false' disables requirement)
+  if (process.env.REQUIRE_API_KEY === 'false') return next();
+
+  const key = req.get('x-api-key');
+
+  // SECURITY CHECK: Prevent accidental/malicious use of provider keys (e.g., Anthropic key)
+  if (key && process.env.ANTHROPIC_API_KEY && key === process.env.ANTHROPIC_API_KEY) {
+    console.warn('Client attempted to use Anthropic API key as x-api-key — rejecting request.');
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'Provider API keys (ANTHROPIC_API_KEY) must not be used as backend authentication. Configure a dedicated BACKEND_API_KEY and update the client to use that.'
+    });
+  }
+
+  // first support mapping keys -> roles
+  const map = parseKeys();
+  if(map){
+    if(!key || !map[key]) return res.status(401).json({ error: 'Unauthorized' });
+    // attach role to request for downstream checks
+    req.apiKeyRole = map[key];
+    req.apiKey = key;
+    return next();
+  }
+  // fallback to single key behavior
+  const expected = process.env.BACKEND_API_KEY || process.env.MY_API_KEY;
+  // If no expected key is configured, allow requests (backwards-compatible)
+  if(!expected) return next();
+  if(!key || key !== expected) return res.status(401).json({ error: 'Unauthorized' });
+  // legacy single-key: mark as admin by default
+  req.apiKeyRole = 'admin';
+  req.apiKey = key;
+  return next();
+}
+
+function requireRole(role){
+  return function(req, res, next){
+    if(!req.apiKeyRole) return res.status(403).json({ error: 'forbidden' });
+    if(req.apiKeyRole !== role) return res.status(403).json({ error: 'forbidden' });
+    return next();
+  };
+}
+
+module.exports = requireAPIKey;
+module.exports.requireRole = requireRole;
+
 const path = require('path');
 const fs = require('fs');
 
