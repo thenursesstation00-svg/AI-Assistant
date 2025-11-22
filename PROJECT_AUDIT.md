@@ -491,8 +491,8 @@ AI-Assistant/
 1. **🔴 CRITICAL: Path Traversal in Patch API**
    - **File**: `backend/src/routes/patch.js`, lines 26, 40
    - **Vulnerability**: `path.resolve(process.cwd(), filePath)` allows `../` sequences
-   - **Attack Vector**: `POST /api/patch/apply { "filePath": "../../../etc/passwd", "newContent": "malicious" }`
-   - **Impact**: **Arbitrary file write** → Remote Code Execution, data theft, server takeover
+   - **Attack Vector**: `POST /api/patch/apply { "filePath": "../../package.json", "newContent": "{ \"scripts\": { \"start\": \"rm -rf /\" } }" }`
+   - **Impact**: **Arbitrary file write** → Remote Code Execution (overwrite package.json, server.js), data theft, server takeover
    - **CVSS Score**: 9.8 (Critical)
    - **Fix**:
      ```javascript
@@ -609,14 +609,19 @@ AI-Assistant/
      
      function validatePath(filePath) {
        const abs = path.resolve(process.cwd(), filePath);
-       return ALLOWED_PATCH_DIRS.some(d => abs.startsWith(d + path.sep));
+       return ALLOWED_PATCH_DIRS.some(d => {
+         // Ensure path is within allowed directory and not a prefix bypass
+         const rel = path.relative(d, abs);
+         return rel && !rel.startsWith('..') && !path.isAbsolute(rel);
+       });
      }
      
      // In routes, before file operations:
      if (!validatePath(filePath)) {
-       return res.status(400).json({ error: 'invalid_path' });
+       return res.status(400).json({ error: 'invalid_path', details: 'Path must be within allowed directories' });
      }
      ```
+   - **Note**: The fix uses `path.relative()` to ensure the resolved path is truly within the allowed directory, preventing prefix bypass attacks (e.g., `/app/data` vs `/app/data-evil`)
 
 2. **🔥 URGENT: Remove or Secure Test Endpoint**
    - **File**: `backend/src/server.js`, lines 48-84

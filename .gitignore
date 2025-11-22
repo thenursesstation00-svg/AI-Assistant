@@ -19,6 +19,10 @@ yarn-error.log*
 backend/.env
 frontend/.env
 
+# Test data and temporary files
+backend/data/pending_patches/*.json
+!backend/data/pending_patches/.gitkeep
+
 # IDE and OS files
 .idea
 .vscode
