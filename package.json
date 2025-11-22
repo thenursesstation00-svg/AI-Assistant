@@ -7,6 +7,7 @@
   "scripts": {
     "start": "electron .",
     "build": "npm run build:frontend && electron-builder",
+    "build:ci": "npm run build:frontend && electron-builder --publish never",
     "build:frontend": "cd frontend && npm install && npm run build"
   },
   "devDependencies": {
@@ -16,13 +17,16 @@
     "keytar": "^7.9.0"
   },
   "dependencies": {
-    "ioredis": "^5.3.2"
+    "electron-updater": "^6.6.2",
+    "ioredis": "^5.3.2",
+    "keytar": "^7.9.0"
   },
   "build": {
     "appId": "com.yourname.ai-assistant",
     "productName": "AI Assistant",
     "files": [
       "main.js",
+      "preload.js",
       "backend/**/*",
       {
         "from": "frontend/dist",
