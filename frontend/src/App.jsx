@@ -13,6 +13,7 @@ import CredentialManager from './CredentialManager';
 import ProviderSelector from './components/ProviderSelector';
 import Workspace from './Workspace';
 import UpdateNotification from './UpdateNotification';
+import PluginManager from './PluginManager';
 
 
 function App( ) {
@@ -25,6 +26,7 @@ function App( ) {
   const messageListRef = useRef(null);
   const [showFirstRun, setShowFirstRun] = useState(false);
   const [showCredentials, setShowCredentials] = useState(false);
+  const [showPlugins, setShowPlugins] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState('anthropic');
   const [selectedModel, setSelectedModel] = useState('');
   const [streamingEnabled, setStreamingEnabled] = useState(true);
@@ -250,6 +252,20 @@ function App( ) {
           🔲 Workspace
         </button>
         <button
+          onClick={() => setShowPlugins(true)}
+          style={{
+            padding: '8px 12px',
+            fontSize: '13px',
+            backgroundColor: '#9C27B0',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          🔌 Plugins
+        </button>
+        <button
           onClick={() => setShowCredentials(true)}
           style={{
             padding: '8px 12px',
@@ -335,6 +351,49 @@ function App( ) {
     )}
     <FirstRunModal visible={showFirstRun} onClose={()=>setShowFirstRun(false)} />
     <CredentialManager visible={showCredentials} onClose={() => setShowCredentials(false)} />
+    {showPlugins && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          maxWidth: '1400px',
+          maxHeight: '90vh',
+          width: '95%',
+          overflow: 'auto',
+          position: 'relative'
+        }}>
+          <button
+            onClick={() => setShowPlugins(false)}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              padding: '8px 16px',
+              backgroundColor: '#f44336',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              zIndex: 1001
+            }}
+          >
+            ✕ Close
+          </button>
+          <PluginManager />
+        </div>
+      </div>
+    )}
     <UpdateNotification />
     </>
   );

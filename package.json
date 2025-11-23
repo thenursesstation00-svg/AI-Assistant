@@ -12,6 +12,8 @@
     "build:ci": "npm run build:frontend && electron-builder --publish never",
     "build:frontend": "cd frontend && npm install && npm run build",
     "test": "cd backend && npm test",
+    "test:phase3": "node scripts/test-phase3.js",
+    "test:integration": "npm run test:phase3",
     "setup": "node scripts/setup-credentials.js",
     "setup:mcp": "powershell -ExecutionPolicy Bypass -File scripts/setup-mcp.ps1",
     "lint": "eslint src/**/*.js backend/src/**/*.js frontend/src/**/*.{js,jsx}",
