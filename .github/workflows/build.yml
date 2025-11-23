@@ -47,6 +47,7 @@ jobs:
             exit 0
           }
           if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
+          # Remove any existing line for the key then append
           (Get-Content .env) -notmatch "^$($key)=" | Set-Content .env
           Add-Content -Path .env -Value "$key=$value"
           Write-Host "Injected secret into .env"
