@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: windows-latest
 
+    # Expose the repository secret GH_TOKEN to job steps so electron-builder and the injection step can use it.
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     # Expose the repository secret GH_TOKEN to job steps as MY_SECRET_TOKEN.
     env:
       MY_SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -40,11 +43,14 @@ jobs:
         }
 
     - name: Inject token into .env (only if secret exists)
+      if: ${{ env.GH_TOKEN != '' }}
       if: ${{ env.MY_SECRET_TOKEN != '' }}
       shell: pwsh
       run: |
         # Change INSTALLER_TOKEN below to the env var name your app expects, if different.
         $key = "INSTALLER_TOKEN"
+        $value = $env:GH_TOKEN
+        if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
         $value = $env:MY_SECRET_TOKEN
         # If .env is missing for some reason, create it
         if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
@@ -60,6 +66,9 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: npm run build -- --publish never
+
+    - name: Package (no publish)
+      run: npx electron-builder --publish never
 
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v5
