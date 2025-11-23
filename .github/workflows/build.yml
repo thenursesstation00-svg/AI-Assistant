@@ -36,7 +36,6 @@ jobs:
           }
 
       - name: Inject token into .env (only if secrets exist)
-        if: ${{ env.GH_TOKEN != '' || env.MY_SECRET_TOKEN != '' }}
         shell: pwsh
         run: |
           $key = "INSTALLER_TOKEN"
@@ -47,6 +46,7 @@ jobs:
             exit 0
           }
           if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
+          # Remove any existing line for the key then append
           (Get-Content .env) -notmatch "^$($key)=" | Set-Content .env
           Add-Content -Path .env -Value "$key=$value"
           Write-Host "Injected secret into .env"
@@ -58,9 +58,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run build -- --publish never
-
-      - name: Package (no publish)
-        run: npx electron-builder --publish never
 
       - name: Upload Installer Artifacts
         uses: actions/upload-artifact@v5
