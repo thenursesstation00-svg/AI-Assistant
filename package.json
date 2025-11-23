@@ -20,8 +20,10 @@
     "format": "prettier --write \"**/*.{js,jsx,json,md}\""
   },
   "devDependencies": {
-    "electron": "^28.1.0",
-    "electron-builder": "^24.9.1"
+    "electron": "^39.2.3",
+    "electron-builder": "^26.0.12",
+    "electron-updater": "^6.6.2",
+    "keytar": "^7.9.0"
   },
   "dependencies": {
     "electron-updater": "^6.6.2",
@@ -34,6 +36,8 @@
     "files": [
       "src/main.js",
       "src/preload.js",
+      "main.js",
+      "preload.js",
       "backend/**/*",
       {
         "from": "frontend/dist",

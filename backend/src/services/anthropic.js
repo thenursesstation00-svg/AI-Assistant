@@ -7,7 +7,7 @@ async function sendToAnthropic({ system, messages }) {
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY missing');
 
   const payload = {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-3-5-sonnet-20241022',
     system,
     messages,
     max_tokens: 1200

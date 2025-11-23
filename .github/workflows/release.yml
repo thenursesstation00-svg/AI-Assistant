@@ -6,6 +6,10 @@ on:
       - 'v*'
   workflow_dispatch:
 
+concurrency:
+  group: build-and-release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: windows-latest
@@ -29,8 +33,12 @@ jobs:
           cd backend
           npm ci
           npm test
-      - name: Package Electron App
+      - name: Prepare for packaging
+        run: |
+          npm ci
+      - name: Validate GH token and Package Electron App
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           node --version
@@ -43,19 +51,24 @@ jobs:
         run: |
           Write-Host "Release dir listing:"
           if (Test-Path release) { Get-ChildItem -Recurse -Force release | Format-Table -AutoSize } else { Write-Host "No release dir found" }
+      - name: Check release dir exists
+        id: release_dir_check
+        shell: powershell
+        run: |
+          if (Test-Path release) { echo "exists=true" >> $env:GITHUB_OUTPUT } else { echo "exists=false" >> $env:GITHUB_OUTPUT }
       - name: Show build.publish in package.json
         shell: powershell
         run: |
           if (Test-Path package.json) { (Get-Content package.json -Raw) | ConvertFrom-Json | Select-Object -ExpandProperty build | ConvertTo-Json -Depth 5 | Write-Host } else { Write-Host "package.json not found" }
       - name: Create GitHub Release and upload assets
-        uses: softprops/action-gh-release@v1
+        if: ${{ steps.release_dir_check.outputs.exists == 'true' }}
+        uses: softprops/action-gh-release@v2
         with:
           files: release/**/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   integration_redis:
-    # Manual run only (workflow_dispatch) job to validate Redis-backed integration tests
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     services:
@@ -84,7 +97,6 @@ jobs:
           npm test
 
   dry_run_release:
-    # Manual run only job to test release upload permissions without creating a real release
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: windows-latest
     steps:
@@ -102,14 +114,24 @@ jobs:
           cd frontend
           npm ci
           npm run build
+      - name: Prepare for packaging
+        run: |
+          npm ci
       - name: Package Electron App (dry run)
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           node ./scripts/validate_gh_token.js
           npm run build
+      - name: Check release dir exists (dry run)
+        id: dry_release_dir_check
+        shell: powershell
+        run: |
+          if (Test-Path release) { echo "exists=true" >> $env:GITHUB_OUTPUT } else { echo "exists=false" >> $env:GITHUB_OUTPUT }
       - name: Test draft release creation
-        uses: softprops/action-gh-release@v1
+        if: ${{ steps.dry_release_dir_check.outputs.exists == 'true' }}
+        uses: softprops/action-gh-release@v2
         with:
           files: release/**/*
           draft: true
@@ -117,4 +139,4 @@ jobs:
           name: "Dry Run Release ${{ github.run_number }}"
           body: "This is a test release to validate upload permissions. Safe to delete."
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

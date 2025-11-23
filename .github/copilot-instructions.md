@@ -1,182 +1,246 @@
-Purpose: Help an AI agent quickly become productive in this repository by describing the architecture, developer workflows, important conventions, and concrete examples taken from the codebase. Include concrete commands, environment variables, and file-level examples discovered during analysis.
+# AI Assistant - Copilot Instructions
 
-High-level architecture (concise)
-- Backend: `backend/` — Express-based Node service. Entrypoint: `backend/src/server.js`. Routes live under `backend/src/routes/`, business logic under `backend/src/services/`, auth under `backend/src/middleware/`, and background tasks under `backend/src/workers/`.
-- Frontend: `frontend/` — Vite + React app. Entry: `frontend/src/main.jsx`, main components in `frontend/src/App.jsx`, `Admin.jsx`, and `Chat` UI in `frontend/src/Chat.css`.
-- Desktop packaging: root-level Electron launcher `main.js`; packaging via `electron-builder` configured in root `package.json` (outputs in `release/`).
-- On-disk data: fixtures and snapshots live in `backend/archives_report/`, `backend/uploads/`, and `backend/tmp_archive_response.json`.
+## Architecture Overview
 
-Key workflows & commands
-- Backend install & tests:
-  - `cd backend`
-  - `npm ci`
-  - `npm test` (runs Jest using `backend/jest.config.cjs`)
-  - Dev server: `npm run dev` (uses `nodemon src/server.js`)
-- Frontend dev & build:
-  - `cd frontend`
-  - `npm ci`
-  - `npm run dev` (Vite dev server)
-  - `npm run build` (produces `frontend/dist` used by Electron build)
-- Desktop build (on machine with Node/Electron):
-  - From repo root: `npm run build` (runs `build:frontend` then `electron-builder` — see root `package.json`)
-- Reproduce archive & integration flows:
-  - `node scripts/run_archive.js`
-  - `node scripts/run_integration_check.js`
+**Three-tier Electron desktop application** with multi-provider AI, advanced workspace, and MCP integration.
 
-Important environment variables and behavior (documented from code)
-- `ANTHROPIC_API_KEY` — used by `backend/src/services/anthropic.js` (preferred way to pass Anthropic credentials).
-- NOTE: `backend/src/server.js` contains a hardcoded Anthropic key in a test endpoint — this is a secret and should be removed or rotated immediately.
-- `BACKEND_API_KEY` / `MY_API_KEY` — legacy single API key for `middleware/apiKeyAuth.js`.
-- `BACKEND_API_KEYS` — optional JSON mapping of `key->role` (e.g. `{"key1":"admin"}`) used by `apiKeyAuth` to support role-based access.
- - `BACKEND_API_KEYS` — optional JSON mapping of `key->role` (e.g. `{"key1":"admin"}`) used by `apiKeyAuth` to support role-based access.
-- `REQUIRE_API_KEY` — set to `'false'` to disable API key enforcement for local testing.
-- `CORS_ORIGIN` — controls allowed origin for CORS in `server.js` (default `http://localhost:5173`).
-- Rate limiting: `RATE_LIMIT_WINDOW` (minutes) and `RATE_LIMIT_MAX_REQUESTS` (max) are used to configure `express-rate-limit`.
-- AV worker: `AV_SCAN_CMD` (required to enable `startAvWorker`) and optional `AV_SCAN_INTERVAL_MS`.
+### Core Components
+- **Backend** (`backend/`) — Express.js service on port 3001
+  - Entry: `backend/src/server.js` (initializes DB, provider registry, routes)
+  - Routes: `backend/src/routes/` (thin controllers with API key auth)
+  - Services: `backend/src/services/` (AI providers, search, scraping, database)
+  - Database: SQLite via `better-sqlite3` in `backend/src/database/`
+  - Tests: `backend/tests/` (Jest with mocked providers)
 
-Critical files to inspect when changing behavior
-- `backend/src/server.js` — entrypoint and a short test chat endpoint (contains a hardcoded Anthropic key; must be fixed).
-- `backend/src/services/anthropic.js` — production pathway for Anthropic calls (expects `ANTHROPIC_API_KEY`).
-- `backend/src/services/anthropicWrapper.js` — normalizes provider responses for routes.
-- `backend/src/routes/chat.js` — demonstrates message validation, simple moderation, and uses `sendToAnthropic`.
-- `backend/src/middleware/apiKeyAuth.js` — explains API key handling and role attachment to `req`.
-- `backend/src/workers/avWorker.js` — background worker pattern that scans `uploads/meta/*.json` and executes `AV_SCAN_CMD`.
-- Tests: `backend/tests/*.test.js` — most tests mock `src/services/anthropic.js` (see `chat.test.js`) and rely on fixtures.
+- **Frontend** (`frontend/`) — React SPA built with Vite
+  - Entry: `frontend/src/App.jsx` (classic chat + workspace + futuristic UI modes)
+  - Components: Monaco editor, XTerm terminal, multi-panel layout
+  - Styling: Tailwind CSS + custom CSS
 
-Project-specific conventions & patterns
-- Route → Service: Routes are thin and delegate to `services/` for business logic and external API calls (follow this separation).
-- Fixtures-as-truth: JSON files under `backend/archives_report/` and `backend/tmp_archive_response.json` are used by integration tests — update tests when changing these fixtures.
-- Env-first secrets: runtime credentials should come from environment variables; remove any hardcoded keys from source.
+- **Electron** (`src/`) — Desktop packaging with auto-update
+  - Main: `src/main.js` (BrowserWindow, electron-updater, keytar IPC)
+  - Preload: `src/preload.js` (contextBridge for secure API access)
 
-Integration points & local-only behavior
-- The backend often consumes local archive directories (`backend/backend_archives/`, `backend/archives_report/`) for offline testing.
-- CI and tests mock network calls; `backend/tests` uses `jest` + `supertest` for route testing and `jest.mock` for provider stubs.
+- **MCP Integration** (`.mcp/config.json`) — 11 Model Context Protocol servers
+  - Filesystem, GitHub, Brave Search, Fetch, Puppeteer, Git, Memory, Sequential Thinking, SQLite, Everything, Shell (disabled)
 
-Search provider integration
-- A new `backend/src/services/searchProvider.js` adapter supports external web search providers. Configure via env vars:
-  - `SEARCH_PROVIDER`: `serpapi` (default) or `google`.
-  - `SERPAPI_KEY`: API key for SerpApi (if using `serpapi`).
-  - `GOOGLE_CSE_KEY` and `GOOGLE_CSE_CX`: API key and search engine ID for Google Custom Search (if using `google`).
-- A new protected route `/api/search?q=...` proxies queries through the adapter and requires the app `x-api-key` header.
+## Developer Workflows
 
-Security & immediate action items for humans
-- Remove or rotate the hardcoded Anthropic key found in `backend/src/server.js` before running the app publicly.
-- Prefer `ANTHROPIC_API_KEY` in the environment and ensure `backend/data/api_keys.json` (if used) does not contain real secrets in the repository.
- - Application API key options: The app supports two ways to provide `BACKEND_API_KEY` to the renderer:
-   1. Packaged app environment: set `BACKEND_API_KEY` as an environment variable at runtime/build time. The Electron `preload.js` exposes it to the renderer as `window.__APP_CONFIG__.BACKEND_API_KEY` (read-only).
-   2. In-app settings: users can set the `BACKEND_API_KEY` via the Settings UI; this value is stored in `localStorage` and used to send the `x-api-key` header.
-
-  Prefer option (1) for production installs (no secret persisted in user-visible storage).
-
-How an AI agent should approach changes (practical checklist)
-- Small change that touches runtime behavior:
-  1. Update code in `backend/src/services/` or `routes/`.
-  2. Add/update unit tests in `backend/tests/` and run `cd backend; npm test` locally.
-  3. If fixtures change, update JSON under `backend/archives_report/` in the same PR.
-- Adding an API route:
-  - Wire endpoint in `backend/src/routes/` → implement logic in `backend/src/services/` → secure with `apiKeyAuth` if needed → add tests in `backend/tests/`.
-
-Examples (concrete snippets to copy)
-- Run a single test deterministically:
-  - `cd backend`
-  - `npx jest backend/tests/chat.test.js -i --runInBand`
-- Start backend dev server with nodemon:
-  - `cd backend; npm run dev`
-
-What not to change without human review
-- Do not modify JSON fixtures under `backend/archives_report/` or `backend/tmp_archive_response.json` without updating tests.
-- Do not modify `release/` artifacts — those are build outputs.
-
-If you need more context or credentials
-- Read `backend/README.md` and `frontend/README.md` for additional notes.
-- Request `backend/data/api_keys.json` or `ANTHROPIC_API_KEY` from the repository owner if you must run full integrations; do not accept secrets via commits.
-
-Release & Auto-update notes
-- CI workflow: `.github/workflows/release.yml` is added to build the frontend, run backend tests, and run `npm run build` to produce Electron artifacts on tag pushes (tags like `v1.2.3`).
-- GitHub token: The workflow uses `GITHUB_TOKEN` (automatically provided) or a personal `GH_TOKEN` if you need broader permissions. Add any needed secrets under repository Settings → Secrets.
-- electron-updater: `main.js` now integrates `electron-updater` and the app exposes a minimal updater IPC via `preload.js` (renderer: `window.electronUpdater`). To publish updates automatically you must publish the built artifacts (nsis/inno) to GitHub Releases or another provider supported by `electron-updater`.
-- How to create a release from a tag locally:
-  - Create annotated tag: `git tag -a v1.0.0 -m "release v1.0.0"`
-  - Push the tag: `git push origin v1.0.0`
-  - The workflow will run and create artifacts; GitHub Releases will contain the packaged installer if `GITHUB_TOKEN` has write access.
-
-CI secrets and code-signing (quick guide)
-- **Required secret**: `GH_TOKEN` — a Personal Access Token (PAT) with `repo` scope for private repos (or `public_repo` for public-only). Store it in **Repository Settings → Secrets and variables → Actions**. Use `secrets.GH_TOKEN` in workflows.
-- **Optional secret**: `CODE_SIGN_CERT` / `CSC_LINK` & `CSC_KEY_PASSWORD` — for Windows/macOS code-signing. `electron-builder` supports using `CSC_LINK` (URL to a PFX) and `CSC_KEY_PASSWORD` environment variables. If you use GitHub Actions, add these as secrets and ensure your runner has network access to download the certificate during build.
-- **Keytar / native modules**: CI runners must be able to compile native modules (e.g., `keytar`). Use the platform matching your target (Windows runners for Windows builds). Ensure `npm ci` runs on the build runner and that `node-gyp` build dependencies are available.
-
-Provisioning checklist (recommended)
-- Create the PAT in GitHub (Settings → Developer settings → Personal access tokens). Choose `repo` or `public_repo` as required and set an expiration.
-- Add the PAT to the repository secrets as `GH_TOKEN`.
-- Add code-signing secrets (`CSC_LINK` and `CSC_KEY_PASSWORD`) if you plan to sign Windows installers. Upload the PFX to a secure location and reference it via `CSC_LINK`.
-- Verify by running a test tag and checking the Actions build logs and Releases page.
-
-CI troubleshooting
-- If the release publish fails with permission errors, check that the token used in `secrets.GH_TOKEN` has the right scopes and that it hasn't expired.
-- If native modules fail to build on CI, ensure the runner OS matches the targeted platform and install any required build tools (e.g., Windows: Visual Studio Build Tools).
-
-Sample `electron-builder` publish configuration (GitHub provider)
-- In `package.json` -> `build.publish` you can specify the owner/repo and release type. Example:
-
-```json
-"publish": [
-  {
-    "provider": "github",
-    "owner": "your-github-username-or-org",
-    "repo": "your-repo-name",
-    "releaseType": "draft"
-  }
-]
-```
-
-When using this, ensure `GH_TOKEN` has `repo` (or `public_repo`) scope and is stored in repository secrets as `GH_TOKEN`.
-
-Optional: Redis caching for search provider
-- To enable cross-instance caching for `/api/search`, set `REDIS_URL` (for example `redis://:password@host:6379/0`) in backend environment. The `searchProvider` will use Redis when `REDIS_URL` is present; otherwise it falls back to the in-memory cache.
-- Configurable TTL and size via env:
-  - `SEARCH_CACHE_TTL_MS` (default `300000`, 5 minutes)
-  - `SEARCH_CACHE_MAX` (default `100`)
-
-Local Redis for development
-- A `docker-compose.yml` file is provided at the repo root to run Redis for local testing:
-
+### Backend Development
 ```powershell
-docker compose up -d
-# stop: docker compose down
+cd backend
+npm ci
+npm run dev          # Nodemon on port 3001
+npm test             # All Jest tests
+npm test -- --testPathPattern=chat.test.js  # Specific test
 ```
 
-CI notes for Redis
-- If you want CI to run integration tests against Redis, you can enable a GitHub Actions `services` container for Redis in the job. Example (partial job snippet):
-
-```yaml
-services:
-  redis:
-    image: redis:7
-    ports:
-      - 6379:6379
-    options: >-
-      --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-env:
-  REDIS_URL: redis://localhost:6379
-```
-
-Build-time injection of `BACKEND_API_KEY` (packaged app)
-- Two common options:
-  1. CI injects `BACKEND_API_KEY` into the build environment so the packaged app can expose it at runtime (less secure; only use for internal builds). Example using the included `scripts/build_with_key.ps1` (PowerShell):
-
+### Frontend Development
 ```powershell
-# On your build machine/CI, run (PowerShell):
-.
-\scripts\build_with_key.ps1 -BackendApiKey "<your-backend-api-key>"
+cd frontend
+npm ci
+npm run dev          # Vite dev server on port 5173
+npm run build        # Production build to frontend/dist
 ```
 
-  2. Preferable: the packaged app prompts the user at first run and stores the key in the OS secure store (Windows Credential Manager, macOS Keychain). This repo includes a first-run modal and `keytar`-backed storage already.
+### Electron Build
+```powershell
+# From repo root
+npm install
+npm run build:frontend  # Build React app first
+npm run build           # Creates installer in release/
+npm start               # Dev mode
+```
 
-Security reminder
-- Do NOT embed production secrets into build artifacts unless you fully control the environment and understand the implications. Prefer first-run secure storage (keytar) or OS-level provisioning of environment variables on managed installs.
+### Testing Patterns
+```powershell
+# Run single test deterministically
+cd backend
+npx jest tests/chat.test.js -i --runInBand
 
+# Integration tests
+node scripts/run_integration_check.js
+node scripts/test-phase3.js
+```
 
-Security reminder
-- Do NOT commit tokens or certificates into the repository. Always use repository secrets. Rotate tokens immediately if accidentally exposed.
+## Critical Environment Variables
 
-End of instructions — review and tell me which sections to expand, or if you want me to wire a GitHub Actions secret example and a sample `publish` config (owner/repo) for `electron-builder` so releases are fully automatic.
+**Backend** (`backend/.env`):
+```bash
+# Required
+ANTHROPIC_API_KEY=sk-ant-...           # Provider API key (server-side only)
+BACKEND_API_KEY=your_backend_key       # Frontend-to-backend auth
+
+# Multi-key auth (JSON mapping: key->role)
+BACKEND_API_KEYS='{"admin_key":"admin","reader_key":"reader"}'
+REQUIRE_API_KEY=false                   # Set to 'false' for local dev
+
+# CORS & Rate Limiting
+CORS_ORIGIN=http://localhost:5173
+RATE_LIMIT_WINDOW=15                    # minutes
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Optional integrations
+SEARCH_PROVIDER=serpapi                 # or 'google', 'brave'
+SERPAPI_KEY=your_key
+GITHUB_TOKEN=ghp_...                    # For GitHub MCP server
+REDIS_URL=redis://localhost:6379       # For search caching
+```
+
+## Project-Specific Patterns
+
+### 1. Route → Service Architecture
+**All business logic belongs in services**, not routes:
+```javascript
+// backend/src/routes/chat.js (thin controller)
+router.post('/', requireAPIKey, async (req, res) => {
+  const provider = await providerRegistry.getDefaultProvider();
+  const result = await provider.sendMessage(req.body.messages);
+  res.json(result);
+});
+```
+
+Services handle:
+- AI provider calls (`services/ai/providers/`)
+- Search integration (`services/searchProvider.js`)
+- Web scraping (`services/scraper.js`)
+
+### 2. Multi-Provider AI System
+**Provider Registry** (`backend/src/services/ai/registry.js`):
+- Auto-initializes Anthropic, OpenAI from environment
+- Usage: `providerRegistry.get('anthropic').sendMessage(messages)`
+- Base class pattern in `services/ai/providers/base.js`
+
+### 3. Secure API Key Flow
+**Backend** (`backend/src/server.js` around line 40):
+- Uses **constant-time comparison** in `requireAPIKey` middleware
+- **Rejects provider keys** if sent as `x-api-key` (security check)
+- Supports both single key and role-based multi-key auth
+
+**Frontend** credential storage:
+- First-run modal prompts for `BACKEND_API_KEY`
+- Stored in OS keychain via keytar (Windows Credential Manager, macOS Keychain)
+- Retrieved async via `getBackendApiKeyAsync()` in `frontend/src/config.js`
+
+### 4. Test Fixtures as Source of Truth
+- JSON fixtures in `backend/archives_report/` used by integration tests
+- Mock external APIs (Anthropic, SerpAPI) to return fixture data
+- **Always update fixtures and tests together**
+- Example: `backend/tests/chat.test.js` mocks provider registry
+
+### 5. MCP (Model Context Protocol) Servers
+AI assistants get enhanced context via 11 MCP servers:
+- **SQLite MCP** (`backend/src/database/mcp-server.js`) provides read-only DB access
+- **GitHub MCP** requires `GITHUB_TOKEN` for repo integration
+- Test: `.\scripts\setup-mcp.ps1 -InstallServers -TestConnection`
+
+## Security & Best Practices
+
+### ⚠️ Critical Security Items
+1. **Never expose** `ANTHROPIC_API_KEY` to frontend/renderer
+2. **Separate keys**: `BACKEND_API_KEY` ≠ `ANTHROPIC_API_KEY`
+3. **Use keytar** for credential storage in packaged apps
+4. **Constant-time comparison** prevents timing attacks in API key validation
+
+### API Key Validation Pattern
+```javascript
+// backend/src/server.js - Security check prevents provider key misuse
+if (key && process.env.ANTHROPIC_API_KEY && key === process.env.ANTHROPIC_API_KEY) {
+  return res.status(401).json({
+    error: 'Provider API keys must not be used as backend authentication'
+  });
+}
+```
+
+## CI/CD & Release
+
+### GitHub Actions
+- **`.github/workflows/release.yml`** — Triggered by version tags
+- Builds frontend → runs backend tests → packages Electron → publishes to GitHub Releases
+- **Required secrets**: `GH_TOKEN` (Personal Access Token with `repo` scope)
+
+### Creating Releases
+```powershell
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+# Actions automatically builds and releases
+```
+
+### Auto-Update System
+- `src/main.js` integrates `electron-updater` with auto-download
+- Frontend shows `UpdateNotification.jsx` when updates available
+- IPC events: `update-checking`, `update-available`, `update-downloaded`
+
+## Agent Development Workflows
+
+### Adding New API Routes
+1. Create route in `backend/src/routes/newFeature.js`
+2. Implement logic in `backend/src/services/newFeatureService.js`
+3. Register in `backend/src/server.js`: `app.use('/api/new-feature', requireAPIKey, routes)`
+4. Add tests in `backend/tests/newFeature.test.js` with mocked services
+5. Run `cd backend && npm test` to validate
+
+### Modifying AI Providers
+1. Update provider class in `backend/src/services/ai/providers/`
+2. Extend `AIProvider` base class pattern
+3. Update registry initialization if needed
+4. Mock in tests: `jest.mock('../src/services/ai/providers/anthropic')`
+
+### Frontend Component Updates
+1. Components in `frontend/src/` (App.jsx is main orchestrator)
+2. Three UI modes: classic chat, workspace, futuristic
+3. API calls centralized in `frontend/src/api.js`
+4. Test with `npm run dev` in frontend directory
+
+## Local Development Tips
+
+### Quick Setup (No Auth)
+```bash
+# In backend/.env
+REQUIRE_API_KEY=false  # Bypasses all API key checks
+```
+
+### Optional Redis Caching
+```powershell
+docker compose up -d   # Starts Redis container
+# Set REDIS_URL=redis://localhost:6379 in backend/.env
+```
+
+### MCP Server Debugging
+```powershell
+npx @modelcontextprotocol/inspector backend\src\database\mcp-server.js
+```
+
+## Key Files Reference
+
+| File | Purpose |
+|------|---------|
+| `backend/src/server.js` | Express app entry, middleware, routes |
+| `backend/src/services/ai/registry.js` | Multi-provider AI system |
+| `backend/src/database/db.js` | SQLite connection & initialization |
+| `frontend/src/App.jsx` | Main UI with chat/workspace/futuristic modes |
+| `src/main.js` | Electron main process with auto-updater |
+| `.mcp/config.json` | 11 MCP servers configuration |
+| `backend/tests/chat.test.js` | Example test with mocked providers |
+
+## Common Pitfalls
+
+### ❌ Don't
+- Put business logic in routes (use services)
+- Commit `.env` files or real API keys
+- Modify fixtures without updating tests
+- Expose provider keys to frontend
+- Use synchronous operations in routes
+
+### ✅ Do
+- Mock external APIs in tests (`jest.mock`)
+- Use `requireAPIKey` middleware on protected routes
+- Run `npm test` in backend before committing
+- Store credentials in OS keychain (keytar)
+- Follow Route → Service separation pattern
+
+## Documentation Links
+- **[Quick Start](../docs/QUICKSTART.md)** — 5-minute setup
+- **[MCP Guide](../docs/MCP_GUIDE.md)** — Model Context Protocol
+- **[Backend README](../backend/README.md)** — Backend specifics
+- **[Frontend README](../frontend/README.md)** — Frontend specifics

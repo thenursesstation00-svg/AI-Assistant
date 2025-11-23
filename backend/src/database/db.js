@@ -36,11 +36,9 @@ function getDatabase() {
 function initializeDatabase() {
   const database = getDatabase();
   
-  // Read and execute schema
-  const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
-  database.exec(schema);
-  
-  console.log('✅ Database schema initialized');
+  // Tables are created by migrate.js on server start
+  // This just ensures connection is established
+  console.log('✅ Database initialized');
   
   return database;
 }

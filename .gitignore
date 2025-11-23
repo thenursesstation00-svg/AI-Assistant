@@ -27,6 +27,11 @@ frontend/.env
 backend/data/assistant.db*
 backend/data/backups/*
 
+# Test artifacts and temporary files
+/backend/backend/
+/backend/data/pending_patches/
+/backend/tmp_av_test/
+
 # Logs
 logs/
 *.log
@@ -51,6 +56,10 @@ Thumbs.db
 desktop.ini
 *.swp
 *~
+
+# Test data and temporary files
+backend/data/pending_patches/*.json
+!backend/data/pending_patches/.gitkeep
 
 # IDE files (keep settings.json)
 .vscode/*
