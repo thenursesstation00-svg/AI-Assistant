@@ -11,13 +11,19 @@ jobs:
     # Expose the repository secret GH_TOKEN to job steps so electron-builder and the injection step can use it.
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    # Expose the repository secret GH_TOKEN to job steps as MY_SECRET_TOKEN.
+    env:
+      MY_SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
     - name: Check out repository
       uses: actions/checkout@v3
+      # If you need a custom token for checkout (e.g., private submodules), you can uncomment:
+      # token: ${{ secrets.GH_TOKEN }}
+      uses: actions/checkout@v6
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v6
       with:
         node-version: '18'
 
@@ -38,12 +44,17 @@ jobs:
 
     - name: Inject token into .env (only if secret exists)
       if: ${{ env.GH_TOKEN != '' }}
+      if: ${{ env.MY_SECRET_TOKEN != '' }}
       shell: pwsh
       run: |
         # Change INSTALLER_TOKEN below to the env var name your app expects, if different.
         $key = "INSTALLER_TOKEN"
         $value = $env:GH_TOKEN
         if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
+        $value = $env:MY_SECRET_TOKEN
+        # If .env is missing for some reason, create it
+        if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
+        # Remove any existing line for the key then append
         (Get-Content .env) -notmatch "^$($key)=" | Set-Content .env
         Add-Content -Path .env -Value "$key=$value"
         Write-Host "Injected secret into .env"
@@ -52,13 +63,15 @@ jobs:
       run: npm install
 
     - name: Build the Application
-      run: npm run build
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: npm run build -- --publish never
 
     - name: Package (no publish)
       run: npx electron-builder --publish never
 
     - name: Upload Installer Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v5
       with:
         name: ai-assistant-installer
         path: "release/AI Assistant Setup 1.0.0.exe"
