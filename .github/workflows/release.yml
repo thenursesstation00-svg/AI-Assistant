@@ -48,7 +48,7 @@ jobs:
         run: |
           if (Test-Path package.json) { (Get-Content package.json -Raw) | ConvertFrom-Json | Select-Object -ExpandProperty build | ConvertTo-Json -Depth 5 | Write-Host } else { Write-Host "package.json not found" }
       - name: Create GitHub Release and upload assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: release/**/*
         env:
@@ -109,7 +109,7 @@ jobs:
           node ./scripts/validate_gh_token.js
           npm run build
       - name: Test draft release creation
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: release/**/*
           draft: true
