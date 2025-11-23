@@ -1,0 +1,7 @@
+{
+  "id": "1763838483149-271cyq",
+  "patch": "some config\npassword = supersecretapikey12345",
+  "description": "sensitive test",
+  "created_at": "2025-11-22T19:08:03.149Z",
+  "sensitive": true
+}
