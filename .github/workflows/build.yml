@@ -1,15 +1,15 @@
-# .github/workflows/build.yml
-# This is the GitHub Action script to build the Electron app in the cloud.
-
 name: Build AI Assistant Installer
 
 on:
   push:
-    branches: [ "main" ] # This action runs every time you push to the 'main' branch.
+    branches: [ "main" ]
 
 jobs:
   build:
-    runs-on: windows-latest # Use a fresh Windows virtual machine for the build.
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      MY_SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
     - name: Check out repository
@@ -19,9 +19,47 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18' # Use a stable version of Node.js
+      - name: Check out repository
+        uses: actions/checkout@v6
 
-    - name: Install Root Dependencies
-      run: npm install
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '18'
+
+      - name: Ensure .env exists from .env.example
+        shell: pwsh
+        run: |
+          if (Test-Path '.env') {
+            Write-Host ".env already present"
+          } else {
+            if (Test-Path '.env.example') {
+              Copy-Item '.env.example' '.env'
+              Write-Host "Created .env from .env.example"
+            } else {
+              New-Item -Path .env -ItemType File -Force
+              Write-Host "Created empty .env"
+            }
+          }
+
+      - name: Inject token into .env (only if secrets exist)
+        if: ${{ env.GH_TOKEN != '' && env.MY_SECRET_TOKEN != '' }}
+        shell: pwsh
+        run: |
+          $key = "INSTALLER_TOKEN"
+          # Prefer MY_SECRET_TOKEN if set, otherwise fall back to GH_TOKEN
+          $value = if ($env:MY_SECRET_TOKEN -ne '') { $env:MY_SECRET_TOKEN } else { $env:GH_TOKEN }
+          if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
+          # Remove any existing line for the key then append
+          (Get-Content .env) -notmatch "^$($key)=" | Set-Content .env
+          Add-Content -Path .env -Value "$key=$value"
+          Write-Host "Injected secret into .env"
+
+      - name: Install Root Dependencies
+        run: npm ci
+
+      - name: Build the Application
+        run: npm run build -- --publish never
 
     - name: Build the Application
       env:
@@ -33,3 +71,11 @@ jobs:
       with:
         name: ai-assistant-installer
         path: "release/AI Assistant Setup 1.0.0.exe"
+      - name: Package (no publish)
+        run: npx electron-builder --publish never
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: ai-assistant-installer
+          path: "release/**"

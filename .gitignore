@@ -27,6 +27,11 @@ frontend/.env
 backend/data/assistant.db*
 backend/data/backups/*
 
+# Test artifacts and temporary files
+/backend/backend/
+/backend/data/pending_patches/
+/backend/tmp_av_test/
+
 # Logs
 logs/
 *.log

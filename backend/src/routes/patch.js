@@ -11,6 +11,21 @@ const backupsRoot = path.resolve(__dirname, '../../data/backups');
 if(!fs.existsSync(pendingRoot)) fs.mkdirSync(pendingRoot, { recursive: true });
 if(!fs.existsSync(backupsRoot)) fs.mkdirSync(backupsRoot, { recursive: true });
 
+// Security: Whitelist allowed directories for file operations
+const ALLOWED_ROOTS = [
+  path.resolve(__dirname, '../../'),        // Backend root
+  path.resolve(__dirname, '../../../frontend/src'),  // Frontend source
+  path.resolve(__dirname, '../../data'),   // Data directory
+];
+
+function isPathAllowed(filePath) {
+  const normalized = path.resolve(filePath);
+  // Reject paths with traversal attempts
+  if (filePath.includes('..')) return false;
+  // Check if path is within allowed roots
+  return ALLOWED_ROOTS.some(root => normalized.startsWith(root));
+}
+
 function readFileSafe(filePath){
   if(!fs.existsSync(filePath)) return null;
   return fs.readFileSync(filePath, 'utf8');
@@ -22,6 +37,7 @@ router.post('/propose', async (req, res) => {
   try{
     const { filePath, newContent } = req.body;
     if(!filePath || typeof newContent !== 'string') return res.status(400).json({ error: 'missing_params' });
+    if(!isPathAllowed(filePath)) return res.status(403).json({ error: 'forbidden_path', message: 'Path not in allowed directories' });
     const abs = path.resolve(process.cwd(), filePath);
     const old = readFileSafe(abs);
     return res.json({ filePath: abs, old: old, proposed: newContent });
@@ -37,6 +53,7 @@ router.post('/apply', async (req, res) => {
   try{
     const { filePath, newContent, autoApplyIfSafe = false } = req.body;
     if(!filePath || typeof newContent !== 'string') return res.status(400).json({ error: 'missing_params' });
+    if(!isPathAllowed(filePath)) return res.status(403).json({ error: 'forbidden_path', message: 'Path not in allowed directories' });
     const abs = path.resolve(process.cwd(), filePath);
     const old = readFileSafe(abs) || '';
     const sensitive = likelySecret(newContent) || likelySecret(old);

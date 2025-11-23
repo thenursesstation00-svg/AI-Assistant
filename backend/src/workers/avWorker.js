@@ -1,13 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 
 function safeReadJSON(p){ try{ return JSON.parse(fs.readFileSync(p,'utf8')); }catch(e){ return null; } }
 function safeWriteJSON(p,obj){ fs.writeFileSync(p, JSON.stringify(obj, null, 2), 'utf8'); }
 
-function runCommand(cmd, opts = {}){
+function runCommand(cmdPath, args = [], opts = {}){
   return new Promise((resolve) => {
-    exec(cmd, { timeout: opts.timeout || 60000, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) => {
+    execFile(cmdPath, args, { timeout: opts.timeout || 60000, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) => {
       resolve({ err, stdout: stdout && String(stdout), stderr: stderr && String(stderr) });
     });
   });
@@ -36,12 +36,26 @@ function startAvWorker({ metaRoot, intervalMs = 15000 } = {}){
           meta.scan = { status: 'scanning', started_at: new Date().toISOString() };
           safeWriteJSON(p, meta);
           const filePath = meta.path;
-          let cmd = process.env.AV_SCAN_CMD;
-          if(cmd.includes('{path}')) cmd = cmd.replace(/\{path\}/g, filePath);
-          else cmd = `${cmd} "${filePath}"`;
-          console.log('AV worker: scanning', filePath);
+          
+          // Parse AV_SCAN_CMD to extract command and arguments
+          const cmdEnv = process.env.AV_SCAN_CMD;
+          let cmdPath, cmdArgs;
+          
+          if (cmdEnv.includes('{path}')) {
+            // Split command and replace placeholder
+            const parts = cmdEnv.split(/\s+/);
+            cmdPath = parts[0];
+            cmdArgs = parts.slice(1).map(arg => arg.replace(/\{path\}/g, filePath));
+          } else {
+            // Simple command with file as last argument
+            const parts = cmdEnv.split(/\s+/);
+            cmdPath = parts[0];
+            cmdArgs = parts.slice(1).concat([filePath]);
+          }
+          
+          console.log('AV worker: scanning', filePath, 'with command:', cmdPath, cmdArgs);
           try{
-            const { err, stdout, stderr } = await runCommand(cmd, { timeout: 120000 });
+            const { err, stdout, stderr } = await runCommand(cmdPath, cmdArgs, { timeout: 120000 });
             if(err){
               meta.scan = { status: 'failed', error: err.message || String(err), output: (stdout||'') + (stderr||''), finished_at: new Date().toISOString() };
             } else {
