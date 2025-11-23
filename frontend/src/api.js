@@ -59,3 +59,6 @@ export async function listChatFiles() {
   if (!res.ok) throw new Error('Failed to list files');
   return res.json();
 }
+
+// Alias for compatibility with ChatWindow.jsx
+export const sendMessage = sendChat;
