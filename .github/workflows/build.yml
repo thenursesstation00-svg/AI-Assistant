@@ -59,8 +59,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run build -- --publish never
 
-      - name: Upload Installer Artifacts
-        uses: actions/upload-artifact@v5
       - name: Upload Installer Artifact
         uses: actions/upload-artifact@v4
         with:

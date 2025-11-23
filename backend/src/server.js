@@ -104,6 +104,7 @@ const streamingRoutes = require('./routes/streaming');
 const workspaceRoutes = require('./routes/workspace');
 const scrapeRoutes = require('./routes/scrape');
 const providersRoutes = require('./routes/providers');
+const aiRoutes = require('./routes/ai');
 const { startAvWorker } = require('./workers/avWorker');
 
 const app = express();
@@ -180,6 +181,7 @@ app.use('/api/stream', requireAPIKey, streamingRoutes);
 app.use('/api/workspace', requireAPIKey, workspaceRoutes);
 app.use('/api/scrape', requireAPIKey, scrapeRoutes);
 app.use('/api/keypool', requireAPIKey, require('./routes/keypool'));
+app.use('/api/ai', requireAPIKey, aiRoutes);
 
 app.get('/health', (req, res) => res.json({status:'ok', uptime: process.uptime()}));
 
