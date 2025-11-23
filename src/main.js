@@ -5,6 +5,15 @@ let autoUpdater;
 try {
   // electron-updater is optional for local/dev runs. If it's not installed, fall back to a noop implementation.
   ({ autoUpdater } = require('electron-updater'));
+  
+  // Configure auto-updater for GitHub releases
+  if (process.env.NODE_ENV !== 'development') {
+    autoUpdater.setFeedURL({
+      provider: 'github',
+      owner: 'thenursesstation00-svg',
+      repo: 'AI-Assistant'
+    });
+  }
 } catch (e) {
   console.warn('electron-updater not available; auto-update features disabled.');
   autoUpdater = {
