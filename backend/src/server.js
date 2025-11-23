@@ -1,5 +1,27 @@
 // backend/src.js (FINAL "Smart Response" Version)
 
+// Load environment variables first
+require('dotenv').config();
+
+// Validate environment variables
+const { validateEnvironment } = require('./utils/validateEnv');
+validateEnvironment();
+
+// Run database migrations
+const { migrate } = require('./database/migrate');
+try {
+  migrate();
+} catch (error) {
+  console.error('Migration error:', error.message);
+}
+
+// Initialize database connection
+const { initializeDatabase } = require('./database/db');
+initializeDatabase();
+
+// Initialize AI provider registry
+const providerRegistry = require('./services/ai/registry');
+providerRegistry.initialize();
 // Load environment variables from .env file
 require('dotenv').config();
 
@@ -73,6 +95,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const chatRoutes = require('./routes/chat');
+const chatFilesRoutes = require('./routes/chatFiles');
 // requireAPIKey is defined above in this file
 const adminRoutes = require('./routes/admin');
 const patchRoutes = require('./routes/patch');
@@ -83,7 +106,13 @@ const connectorsRoutes = require('./routes/connectors');
 const agentsRoutes = require('./routes/agents');
 const apiKeysRoutes = require('./routes/apiKeys');
 const searchRoutes = require('./routes/search');
+const commandRoutes = require('./routes/command');
 const providersRoutes = require('./routes/providers');
+const credentialsRoutes = require('./routes/credentials');
+const streamingRoutes = require('./routes/streaming');
+const workspaceRoutes = require('./routes/workspace');
+const scrapeRoutes = require('./routes/scrape');
+const aiIntelligenceRoutes = require('./routes/aiIntelligence');
 const { startAvWorker } = require('./workers/avWorker');
 
 const app = express();
@@ -91,7 +120,12 @@ app.use(helmet());
 app.use(express.json());
 
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173'
+  origin: [
+    'http://localhost:5173',
+    'file://',
+    /^file:\/\//
+  ],
+  credentials: true
 } ));
 
 const limiter = rateLimit({
@@ -100,49 +134,45 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Development-only test endpoint (removed in production)
+if (process.env.NODE_ENV !== 'production') {
+  app.post('/api/chat/test', requireAPIKey, async (req, res) => {
+    const conversationHistory = req.body.messages;
 
-// --- TEST ENDPOINT WITH CONVERSATION MEMORY & SMART RESPONSE HANDLING ---
-app.post('/api/chat/test', async (req, res) => {
-  const conversationHistory = req.body.messages;
-
-  if (!conversationHistory || conversationHistory.length === 0) {
-    return res.status(400).json({ error: 'Message history is required' });
-  }
-
-  console.log('Received conversation history, calling Anthropic API...');
-
-  try {
-    const completion = await anthropic.messages.create({
-      model: "claude-3-haiku-20240307",
-      max_tokens: 1024,
-      messages: conversationHistory,
-    });
-
-    // --- THIS IS THE NEW, SMARTER LOGIC ---
-    let aiReply = '';
-    if (completion.content && completion.content[0] && typeof completion.content[0].text === 'string') {
-      // This handles the standard case where the response is simple text.
-      aiReply = completion.content[0].text;
-    } else {
-      // This is a fallback. If the AI sends a weird object, we'll stringify it
-      // so we can see what it is, instead of just getting '[object Object]'.
-      aiReply = "The AI sent a complex response. Here is the raw data:\n\n```json\n" + JSON.stringify(completion.content, null, 2) + "\n```";
+    if (!conversationHistory || conversationHistory.length === 0) {
+      return res.status(400).json({ error: 'Message history is required' });
     }
-    // --- END OF NEW LOGIC ---
 
-    console.log('Extracted AI reply:', aiReply);
-    res.json({ reply: aiReply });
+    console.log('[DEV] Test endpoint called with conversation history');
 
-  } catch (error) {
-    console.error("Error calling Anthropic API:", error);
-    res.status(500).json({ error: "Failed to get a response from the AI." });
-  }
-});
-// --- END: TEST ENDPOINT ---
+    try {
+      const completion = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 1024,
+        messages: conversationHistory,
+      });
 
+      let aiReply = '';
+      if (completion.content && completion.content[0] && typeof completion.content[0].text === 'string') {
+        aiReply = completion.content[0].text;
+      } else {
+        aiReply = "The AI sent a complex response. Here is the raw data:\n\n```json\n" + JSON.stringify(completion.content, null, 2) + "\n```";
+      }
 
-// Your existing routes remain untouched
+      console.log('[DEV] Extracted AI reply:', aiReply.substring(0, 100) + '...');
+      res.json({ reply: aiReply });
+
+    } catch (error) {
+      console.error("[DEV] Error calling Anthropic API:", error.message);
+      res.status(500).json({ error: "Failed to get a response from the AI." });
+    }
+  });
+  console.log('⚠️  Development mode: /api/chat/test endpoint is enabled');
+}
+
+// Production routes
 app.use('/api/chat', requireAPIKey, chatRoutes);
+app.use('/api/chat', requireAPIKey, chatFilesRoutes); // File upload for chat
 app.use('/api/providers', requireAPIKey, providersRoutes);
 app.use('/api/admin', requireAPIKey, adminRoutes);
 app.use('/api/patch', requireAPIKey, patchRoutes);
@@ -153,13 +183,33 @@ app.use('/api/admin/connectors', requireAPIKey, connectorsRoutes);
 app.use('/api/admin/agents', requireAPIKey, agentsRoutes);
 app.use('/api/admin', requireAPIKey, apiKeysRoutes);
 app.use('/api/search', requireAPIKey, searchRoutes);
+app.use('/api/command', requireAPIKey, commandRoutes);
+app.use('/api/providers', requireAPIKey, providersRoutes);
+app.use('/api/credentials', requireAPIKey, credentialsRoutes);
+app.use('/api/stream', requireAPIKey, streamingRoutes);
+app.use('/api/workspace', requireAPIKey, workspaceRoutes);
+app.use('/api/scrape', requireAPIKey, scrapeRoutes);
+app.use('/api/ai', requireAPIKey, aiIntelligenceRoutes);
 app.use('/api/keypool', requireAPIKey, require('./routes/keypool'));
 
 app.get('/health', (req, res) => res.json({status:'ok', uptime: process.uptime()}));
 
 const port = process.env.PORT || 3001;
-app.listen(port, () => console.log(`Backend listening on ${port}`));
+// Listen on all interfaces to support both IPv4 and IPv6
+app.listen(port, (err) => {
+  if (err) {
+    console.error('Failed to start backend server:', err);
+    process.exit(1);
+  }
+  console.log(`Backend listening on port ${port}`);
+  console.log(`Access via: http://127.0.0.1:${port} or http://localhost:${port}`);
+});
 
 try{
   startAvWorker({ metaRoot: require('path').resolve(__dirname, '../../uploads/meta'), intervalMs: parseInt(process.env.AV_SCAN_INTERVAL_MS || '15000', 10) });
 }catch(e){ console.error('failed to start AV worker', e && e.message); }
+
+// Keep the process alive and provide status updates
+setInterval(() => {
+  // This keeps the event loop active
+}, 30000);

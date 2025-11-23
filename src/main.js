@@ -33,9 +33,19 @@ function createWindow() {
     }
   });
 
-  // This version ALWAYS loads from the frontend/dist folder.
-  // It assumes the backend is running separately.
-  mainWindow.loadFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  // Load the appropriate HTML file based on environment
+  if (app.isPackaged) {
+    // In packaged app, frontend/dist is included in the package
+    mainWindow.loadFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  } else {
+    // In development, try to load from built frontend first, fallback to dev server
+    const distPath = path.join(__dirname, 'frontend', 'dist', 'index.html');
+    if (require('fs').existsSync(distPath)) {
+      mainWindow.loadFile(distPath);
+    } else {
+      mainWindow.loadURL('http://localhost:5173');
+    }
+  }
   
   // Optional: Uncomment the line below if you want developer tools to open.
   // mainWindow.webContents.openDevTools();
@@ -60,20 +70,64 @@ function createWindow() {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
+  // Auto-updater configuration
+  autoUpdater.autoDownload = true; // Enable automatic download
+  autoUpdater.autoInstallOnAppQuit = true; // Install update when app quits
+  
   // Auto-updater events -> forward to renderer via IPC
-  autoUpdater.autoDownload = false;
-  autoUpdater.on('update-available', (info) => { mainWindow.webContents.send('update-available', info); });
-  autoUpdater.on('update-not-available', () => { mainWindow.webContents.send('update-not-available'); });
-  autoUpdater.on('update-downloaded', (info) => { mainWindow.webContents.send('update-downloaded', info); });
-  autoUpdater.on('error', (err) => { mainWindow.webContents.send('update-error', { message: err && err.message }); });
+  autoUpdater.on('checking-for-update', () => {
+    console.log('Checking for updates...');
+    mainWindow.webContents.send('update-checking');
+  });
+  
+  autoUpdater.on('update-available', (info) => {
+    console.log('Update available:', info.version);
+    mainWindow.webContents.send('update-available', info);
+  });
+  
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('No updates available');
+    mainWindow.webContents.send('update-not-available', info);
+  });
+  
+  autoUpdater.on('download-progress', (progress) => {
+    console.log(`Download progress: ${progress.percent}%`);
+    mainWindow.webContents.send('update-download-progress', progress);
+  });
+  
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('Update downloaded:', info.version);
+    mainWindow.webContents.send('update-downloaded', info);
+  });
+  
+  autoUpdater.on('error', (err) => {
+    console.error('Update error:', err);
+    mainWindow.webContents.send('update-error', { message: err && err.message });
+  });
 
+  // IPC handlers for manual update control
   ipcMain.on('apply-update', () => {
-    // Quit and install the update
+    console.log('Installing update...');
     autoUpdater.quitAndInstall();
   });
+  
   ipcMain.on('check-for-updates', () => {
+    console.log('Manual update check requested');
     autoUpdater.checkForUpdates();
   });
+  
+  ipcMain.on('download-update', () => {
+    console.log('Manual download requested');
+    autoUpdater.downloadUpdate();
+  });
+
+  // Check for updates on startup (only in production)
+  if (app.isPackaged) {
+    setTimeout(() => {
+      console.log('Auto-checking for updates on startup...');
+      autoUpdater.checkForUpdates();
+    }, 3000); // Wait 3 seconds after app loads
+  }
 
   // Secure backend API key storage via OS keychain (if keytar is available)
   const SERVICE_NAME = 'ai-assistant';
@@ -117,7 +171,22 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // Auto-configure backend API key on first run
+  if (keytar) {
+    try {
+      const existingKey = await keytar.getPassword('ai-assistant', 'backend_api_key');
+      if (!existingKey) {
+        // Set default backend API key from environment or hardcoded value
+        const defaultKey = process.env.BACKEND_API_KEY || 'test-key-12345';
+        await keytar.setPassword('ai-assistant', 'backend_api_key', defaultKey);
+        console.log('✅ Auto-configured backend API key on first run');
+      }
+    } catch (err) {
+      console.warn('Failed to auto-configure backend API key:', err);
+    }
+  }
+  
   createWindow();
 });
 

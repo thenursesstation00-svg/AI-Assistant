@@ -12,11 +12,22 @@ contextBridge.exposeInMainWorld('__APP_CONFIG__', APP_CONFIG);
 // Expose a limited updater interface to the renderer
 contextBridge.exposeInMainWorld('electronUpdater', {
   checkForUpdates: () => ipcRenderer.send('check-for-updates'),
+  downloadUpdate: () => ipcRenderer.send('download-update'),
   applyUpdate: () => ipcRenderer.send('apply-update'),
   on: (channel, cb) => {
-    const allowed = ['update-available', 'update-not-available', 'update-downloaded', 'update-error'];
+    const allowed = [
+      'update-checking',
+      'update-available',
+      'update-not-available',
+      'update-download-progress',
+      'update-downloaded',
+      'update-error'
+    ];
     if(!allowed.includes(channel)) return;
     ipcRenderer.on(channel, (event, data) => cb(data));
+  },
+  removeListener: (channel, cb) => {
+    ipcRenderer.removeListener(channel, cb);
   }
 });
 

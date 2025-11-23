@@ -15,6 +15,64 @@ const MAX_UPLOAD = parseInt(process.env.MAX_UPLOAD_SIZE || String(50 * 1024 * 10
 let upload;
 try{
   multer = require('multer');
+  
+  // File filter for security (allow only safe file types)
+  const fileFilter = (req, file, cb) => {
+    const allowedMimes = [
+      // Text files
+      'text/plain',
+      'text/markdown',
+      'text/csv',
+      'text/html',
+      'text/css',
+      'text/javascript',
+      // Documents
+      'application/json',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      // Images
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+      'image/bmp',
+      // Archives
+      'application/zip',
+      'application/x-zip-compressed',
+      'application/x-rar-compressed',
+      'application/x-7z-compressed',
+      'application/x-tar',
+      'application/gzip',
+      // Code files (text/* already covers most)
+      'application/xml',
+      'application/x-yaml',
+      // Audio/Video
+      'audio/mpeg',
+      'audio/wav',
+      'audio/mp4',
+      'video/mp4',
+      'video/mpeg',
+      'video/quicktime'
+    ];
+    
+    const allowedExtensions = /\.(txt|md|csv|html|css|js|jsx|ts|tsx|py|java|cpp|c|h|go|rs|rb|php|sql|sh|bat|ps1|json|xml|yaml|yml|pdf|doc|docx|xls|xlsx|ppt|pptx|jpg|jpeg|png|gif|webp|svg|bmp|zip|rar|7z|tar|gz|mp3|wav|m4a|mp4|mpeg|mov)$/i;
+    
+    const mimeValid = allowedMimes.includes(file.mimetype);
+    const extValid = allowedExtensions.test(path.extname(file.originalname));
+    
+    if (mimeValid && extValid) {
+      return cb(null, true);
+    }
+    
+    cb(new Error(`Invalid file type: ${file.mimetype}. Allowed types: documents (PDF, Word, Excel, PowerPoint), images (JPG, PNG, GIF, WebP, SVG), code files, text files, archives, and media files`));
+  };
+  
   const storage = multer.diskStorage({
     destination: function (req, file, cb) { cb(null, uploadsRoot); },
     filename: function (req, file, cb) {
@@ -24,7 +82,14 @@ try{
       cb(null, `${ts}_${name}`);
     }
   });
-  upload = multer({ storage, limits: { fileSize: MAX_UPLOAD } });
+  upload = multer({ 
+    storage, 
+    limits: { 
+      fileSize: MAX_UPLOAD,
+      files: 10 // Max 10 files per upload
+    },
+    fileFilter: fileFilter 
+  });
 }catch(e){
   console.warn('multer not installed - upload endpoints will be disabled');
   upload = { single: () => (req, res, next) => res.status(503).json({ error: 'upload_disabled', reason: 'multer_missing' }) };
