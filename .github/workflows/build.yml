@@ -12,13 +12,6 @@ jobs:
       MY_SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v4
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18' # Use a stable version of Node.js
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -66,22 +59,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run build -- --publish never
 
-      - name: Upload Installer Artifacts
-    - name: Build the Application
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: npm run build -- --publish never
-
-    - name: Upload Installer Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ai-assistant-installer
-        path: "release/AI Assistant Setup 1.0.0.exe"
-      - name: Package (no publish)
-        run: npx electron-builder --publish never
-
       - name: Upload Installer Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: ai-assistant-installer
           path: release/**
