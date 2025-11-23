@@ -1,0 +1,11 @@
+# Pre-install dependencies so Copilot coding agent can run builds and tests reliably.
+steps:
+  - uses: actions/setup-node@v4
+    with:
+      node-version: "20"
+  - name: Install root dependencies
+    run: npm ci
+  - name: Install backend dependencies
+    run: cd backend && npm ci
+  - name: Install frontend dependencies
+    run: cd frontend && npm ci

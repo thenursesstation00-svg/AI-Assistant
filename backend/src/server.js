@@ -7,7 +7,15 @@ require('dotenv').config();
 const { validateEnvironment } = require('./utils/validateEnv');
 validateEnvironment();
 
-// Initialize database
+// Run database migrations
+const { migrate } = require('./database/migrate');
+try {
+  migrate();
+} catch (error) {
+  console.error('Migration error:', error.message);
+}
+
+// Initialize database connection
 const { initializeDatabase } = require('./database/db');
 initializeDatabase();
 
@@ -87,6 +95,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const chatRoutes = require('./routes/chat');
+const chatFilesRoutes = require('./routes/chatFiles');
 // requireAPIKey is defined above in this file
 const adminRoutes = require('./routes/admin');
 const patchRoutes = require('./routes/patch');
@@ -103,7 +112,7 @@ const credentialsRoutes = require('./routes/credentials');
 const streamingRoutes = require('./routes/streaming');
 const workspaceRoutes = require('./routes/workspace');
 const scrapeRoutes = require('./routes/scrape');
-const providersRoutes = require('./routes/providers');
+const aiIntelligenceRoutes = require('./routes/aiIntelligence');
 const { startAvWorker } = require('./workers/avWorker');
 
 const app = express();
@@ -163,6 +172,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Production routes
 app.use('/api/chat', requireAPIKey, chatRoutes);
+app.use('/api/chat', requireAPIKey, chatFilesRoutes); // File upload for chat
 app.use('/api/providers', requireAPIKey, providersRoutes);
 app.use('/api/admin', requireAPIKey, adminRoutes);
 app.use('/api/patch', requireAPIKey, patchRoutes);
@@ -179,6 +189,7 @@ app.use('/api/credentials', requireAPIKey, credentialsRoutes);
 app.use('/api/stream', requireAPIKey, streamingRoutes);
 app.use('/api/workspace', requireAPIKey, workspaceRoutes);
 app.use('/api/scrape', requireAPIKey, scrapeRoutes);
+app.use('/api/ai', requireAPIKey, aiIntelligenceRoutes);
 app.use('/api/keypool', requireAPIKey, require('./routes/keypool'));
 
 app.get('/health', (req, res) => res.json({status:'ok', uptime: process.uptime()}));

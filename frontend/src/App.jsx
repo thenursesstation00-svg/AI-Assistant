@@ -14,6 +14,8 @@ import ProviderSelector from './components/ProviderSelector';
 import Workspace from './Workspace';
 import UpdateNotification from './UpdateNotification';
 import PluginManager from './PluginManager';
+import ModernChat from './ModernChat';
+import FuturisticUI from './FuturisticUI';
 
 
 function App( ) {
@@ -31,6 +33,8 @@ function App( ) {
   const [selectedModel, setSelectedModel] = useState('');
   const [streamingEnabled, setStreamingEnabled] = useState(true);
   const [workspaceMode, setWorkspaceMode] = useState(false); // Toggle between classic and workspace
+  const [modernMode, setModernMode] = useState(false); // Toggle modern UI
+  const [futuristicMode, setFuturisticMode] = useState(true); // Toggle futuristic UI
   const eventSourceRef = useRef(null);
 
   useEffect(() => {
@@ -229,7 +233,79 @@ function App( ) {
 
   return (
     <>
-    {workspaceMode ? (
+    {futuristicMode ? (
+      // Futuristic UI with draggable windows
+      <>
+        <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 10000, display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => { setFuturisticMode(false); setModernMode(true); }}
+            style={{
+              padding: '8px 12px',
+              fontSize: '13px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: '#00f0ff',
+              border: '1px solid #00f0ff',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            💬 Modern
+          </button>
+          <button
+            onClick={() => { setFuturisticMode(false); setModernMode(false); }}
+            style={{
+              padding: '8px 12px',
+              fontSize: '13px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: '#00f0ff',
+              border: '1px solid #00f0ff',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            ← Classic
+          </button>
+        </div>
+        <FuturisticUI />
+      </>
+    ) : modernMode ? (
+      // Modern UI with file upload capabilities
+      <>
+        <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 1000, display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => { setFuturisticMode(true); setModernMode(false); }}
+            style={{
+              padding: '8px 12px',
+              fontSize: '13px',
+              backgroundColor: '#b400ff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            ✨ Futuristic
+          </button>
+          <button
+            onClick={() => setModernMode(false)}
+            style={{
+              padding: '8px 12px',
+              fontSize: '13px',
+              backgroundColor: '#666',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            ← Classic UI
+          </button>
+        </div>
+        <ModernChat />
+      </>
+    ) : workspaceMode ? (
       <Workspace 
         onShowCredentials={() => setShowCredentials(true)} 
         onBackToClassic={() => setWorkspaceMode(false)}
@@ -237,6 +313,34 @@ function App( ) {
     ) : (
     <div className="app-container">
       <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: '8px' }}>
+        <button
+          onClick={() => { setFuturisticMode(true); setModernMode(false); }}
+          style={{
+            padding: '8px 12px',
+            fontSize: '13px',
+            backgroundColor: '#b400ff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          ✨ Futuristic
+        </button>
+        <button
+          onClick={() => { setModernMode(true); setFuturisticMode(false); }}
+          style={{
+            padding: '8px 12px',
+            fontSize: '13px',
+            backgroundColor: '#FF6B6B',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          💬 Modern
+        </button>
         <button
           onClick={() => setWorkspaceMode(true)}
           style={{
