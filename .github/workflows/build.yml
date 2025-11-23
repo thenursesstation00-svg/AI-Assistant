@@ -70,6 +70,9 @@ jobs:
     - name: Package (no publish)
       run: npx electron-builder --publish never
 
+    - name: Package (no publish)
+      run: npx electron-builder --publish never
+
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v5
       with:
