@@ -1,0 +1,116 @@
+name: GitHub Actions Demo
+on: 
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        
+      - name: Show repository structure
+        run: |
+          echo "Repository checked out at $GITHUB_WORKSPACE"
+          echo "Current directory: $(pwd)"
+          echo "Repository contents:"
+          ls -la
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Display package.json info
+        run: |
+          echo "=== Root package.json ==="
+          if [ -f package.json ]; then
+            cat package.json | jq '.name, .version, .description'
+          else
+            echo "No package.json found in root"
+          fi
+          
+      - name: Check backend structure
+        run: |
+          echo "=== Backend directory ==="
+          if [ -d backend ]; then
+            echo "Backend directory exists"
+            ls -la backend/
+            if [ -f backend/package.json ]; then
+              echo "Backend package.json:"
+              cat backend/package.json | jq '.name, .scripts'
+            fi
+          else
+            echo "No backend directory found"
+          fi
+          
+      - name: Check frontend structure
+        run: |
+          echo "=== Frontend directory ==="
+          if [ -d frontend ]; then
+            echo "Frontend directory exists"
+            ls -la frontend/
+            if [ -f frontend/package.json ]; then
+              echo "Frontend package.json:"
+              cat frontend/package.json | jq '.name, .scripts'
+            fi
+          else
+            echo "No frontend directory found"
+          fi
+          
+      - name: Run validation script (if exists)
+        run: |
+          echo "=== Checking for validation scripts ==="
+          if [ -f scripts/validate_gh_token.js ]; then
+            echo "Found validation script, making it executable"
+            chmod +x scripts/validate_gh_token.js
+            echo "Validation script is now executable"
+            ls -la scripts/validate_gh_token.js
+          else
+            echo "No validation script found at scripts/validate_gh_token.js"
+          fi
+          
+      - name: Test basic git operations
+        run: |
+          echo "=== Git operations test ==="
+          git --version
+          echo "Current branch: $(git branch --show-current)"
+          echo "Last commit: $(git log -1 --oneline)"
+          echo "Repository remote: $(git remote get-url origin)"
+          
+      - name: Show environment info
+        run: |
+          echo "=== Environment Information ==="
+          echo "OS: $(uname -a)"
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "Git version: $(git --version)"
+          echo "Working directory: $(pwd)"
+          echo "Available disk space:"
+          df -h
+          
+      - name: Run custom script example
+        run: |
+          echo "=== Custom Script Demo ==="
+          # Create a temporary script
+          cat > temp_script.sh << 'EOF'
+          #!/bin/bash
+          echo "This is a custom script running in GitHub Actions"
+          echo "Current user: $(whoami)"
+          echo "Current date: $(date)"
+          echo "Repository name: $GITHUB_REPOSITORY"
+          echo "Event name: $GITHUB_EVENT_NAME"
+          echo "Actor: $GITHUB_ACTOR"
+          EOF
+          
+          # Make it executable and run it
+          chmod +x temp_script.sh
+          ./temp_script.sh
+          
+          # Clean up
+          rm temp_script.sh
