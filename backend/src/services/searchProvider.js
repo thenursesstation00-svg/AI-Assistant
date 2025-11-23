@@ -41,9 +41,10 @@ async function processQueue() {
 }
 
 // Adapter for multiple search providers. Configure via env vars:
-// SEARCH_PROVIDER: 'serpapi' (default) or 'google'
+// SEARCH_PROVIDER: 'serpapi' (default), 'google', or 'brave'
 // SERPAPI_KEY
 // GOOGLE_CSE_KEY and GOOGLE_CSE_CX
+// BRAVE_API_KEY
 
 function getProvider(){ return process.env.SEARCH_PROVIDER || 'serpapi'; }
 const LRU_TTL_MS = parseInt(process.env.SEARCH_CACHE_TTL_MS || '300000', 10); // default 5 minutes
@@ -91,10 +92,38 @@ async function searchGoogleCSE(q, opts = {}){
   return resp.data;
 }
 
+async function searchBrave(q, opts = {}){
+  const key = process.env.BRAVE_API_KEY;
+  if(!key) throw new Error('BRAVE_API_KEY not configured');
+  
+  const params = {
+    q,
+    count: opts.count || 10,
+    offset: opts.offset || 0,
+    country: opts.country || 'us',
+    search_lang: opts.search_lang || 'en',
+    ui_lang: opts.ui_lang || 'en-US'
+  };
+  
+  const resp = await axios.get('https://api.search.brave.com/res/v1/web/search', {
+    params,
+    headers: {
+      'Accept': 'application/json',
+      'Accept-Encoding': 'gzip',
+      'X-Subscription-Token': key
+    }
+  });
+  
+  return resp.data;
+}
+
 async function search(q, opts = {}){
   const PROVIDER = getProvider();
   if(PROVIDER === 'google'){
     return searchGoogleCSE(q, opts);
+  }
+  if(PROVIDER === 'brave'){
+    return searchBrave(q, opts);
   }
   // default to serpapi
   return searchSerpApi(q, opts);

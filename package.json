@@ -1,14 +1,21 @@
 {
   "name": "ai-assistant-desktop",
   "version": "1.0.0",
-  "description": "Your AI Assistant Desktop App",
+  "description": "Professional AI Assistant Desktop Application with Multi-Provider Support",
+  "author": "thenursesstation00-svg",
   "homepage": "./",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron src/main.js",
+    "dev": "electron src/main.js --dev",
     "build": "npm run build:frontend && electron-builder",
     "build:ci": "npm run build:frontend && electron-builder --publish never",
-    "build:frontend": "cd frontend && npm install && npm run build"
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "test": "cd backend && npm test",
+    "setup": "node scripts/setup-credentials.js",
+    "setup:mcp": "powershell -ExecutionPolicy Bypass -File scripts/setup-mcp.ps1",
+    "lint": "eslint src/**/*.js backend/src/**/*.js frontend/src/**/*.{js,jsx}",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\""
   },
   "devDependencies": {
     "electron": "^28.1.0",
@@ -20,11 +27,11 @@
     "keytar": "^7.9.0"
   },
   "build": {
-    "appId": "com.yourname.ai-assistant",
+    "appId": "com.thenursesstation.ai-assistant",
     "productName": "AI Assistant",
     "files": [
-      "main.js",
-      "preload.js",
+      "src/main.js",
+      "src/preload.js",
       "backend/**/*",
       {
         "from": "frontend/dist",
@@ -32,7 +39,8 @@
       }
     ],
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "build"
     },
     "win": {
       "target": "nsis"
