@@ -57,6 +57,10 @@ desktop.ini
 *.swp
 *~
 
+# Test data and temporary files
+backend/data/pending_patches/*.json
+!backend/data/pending_patches/.gitkeep
+
 # IDE files (keep settings.json)
 .vscode/*
 !.vscode/settings.json
