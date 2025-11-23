@@ -15,6 +15,33 @@ const MAX_UPLOAD = parseInt(process.env.MAX_UPLOAD_SIZE || String(50 * 1024 * 10
 let upload;
 try{
   multer = require('multer');
+  
+  // File filter for security (allow only safe file types)
+  const fileFilter = (req, file, cb) => {
+    const allowedMimes = [
+      'text/plain',
+      'text/markdown', 
+      'application/json',
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'application/zip',
+      'application/x-zip-compressed'
+    ];
+    
+    const allowedExtensions = /\.(txt|md|json|pdf|jpg|jpeg|png|gif|zip)$/i;
+    
+    const mimeValid = allowedMimes.includes(file.mimetype);
+    const extValid = allowedExtensions.test(path.extname(file.originalname));
+    
+    if (mimeValid && extValid) {
+      return cb(null, true);
+    }
+    
+    cb(new Error(`Invalid file type: ${file.mimetype}. Allowed: txt, md, json, pdf, jpg, png, gif, zip`));
+  };
+  
   const storage = multer.diskStorage({
     destination: function (req, file, cb) { cb(null, uploadsRoot); },
     filename: function (req, file, cb) {
@@ -24,7 +51,14 @@ try{
       cb(null, `${ts}_${name}`);
     }
   });
-  upload = multer({ storage, limits: { fileSize: MAX_UPLOAD } });
+  upload = multer({ 
+    storage, 
+    limits: { 
+      fileSize: MAX_UPLOAD,
+      files: 10 // Max 10 files per upload
+    },
+    fileFilter: fileFilter 
+  });
 }catch(e){
   console.warn('multer not installed - upload endpoints will be disabled');
   upload = { single: () => (req, res, next) => res.status(503).json({ error: 'upload_disabled', reason: 'multer_missing' }) };
