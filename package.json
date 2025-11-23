@@ -11,8 +11,10 @@
     "build:frontend": "cd frontend && npm install && npm run build"
   },
   "devDependencies": {
-    "electron": "^28.1.0",
-    "electron-builder": "^24.9.1"
+    "electron": "^39.2.3",
+    "electron-builder": "^24.9.1",
+    "electron-updater": "^6.6.2",
+    "keytar": "^7.9.0"
   },
   "dependencies": {
     "electron-updater": "^6.6.2",
