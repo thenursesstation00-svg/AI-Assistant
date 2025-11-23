@@ -1,62 +1,96 @@
 # Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+/backend/node_modules
+/frontend/node_modules
 
-# Build outputs
-frontend/dist/
-release/
-dist_electron/
-app/
-*.tsbuildinfo
+# Build output
+/release
+/frontend/dist
+*.exe
+*.dmg
+*.AppImage
+*.blockmap
+builder-debug.yml
+builder-effective-config.yaml
 
-# Logs
-*.log
-logs/
-
-# Runtime data
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage
-coverage/
-*.lcov
-.nyc_output
+# Environment variables
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
 
 # Database files
 *.db
-*.db-journal
 *.db-shm
 *.db-wal
+backend/data/assistant.db*
+backend/data/backups/*
 
-# Environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Test artifacts and temporary files
+/backend/backend/
+/backend/data/pending_patches/
+/backend/tmp_av_test/
 
-# Editor directories
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/backend/_logs
+/frontend/_logs
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Cache
+.cache/
+.npm/
+.eslintcache
 
 # OS files
 .DS_Store
 Thumbs.db
-ehthumbs.db
+desktop.ini
+*.swp
+*~
+
+# Test data and temporary files
+backend/data/pending_patches/*.json
+!backend/data/pending_patches/.gitkeep
+
+# IDE files (keep settings.json)
+.vscode/*
+!.vscode/settings.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Temporary files
-*.tmp
-*.temp
-temp/
 tmp/
+temp/
+*.tmp
 
-# Cache
-.cache/
-.parcel-cache/
-.eslintcache
+# Backend specific
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/data/pending_patches/*
+!backend/data/pending_patches/.gitkeep
+backend/agents_runs/
+backend/archives_report/
+backend/backend_archives/
+backend/tmp_*.json
+
+# MCP logs
+.mcp/logs/
+
+# Security
+api_keys.json
+credentials.json
+*.pem
+*.key
