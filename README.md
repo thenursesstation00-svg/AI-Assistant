@@ -1,12 +1,22 @@
 # 🤖 AI Assistant
 
-> Professional Desktop Application with Multi-Provider AI, Advanced Workspace, and Internet Access
+> Professional Cross-Platform Desktop Application with Multi-Provider AI, Advanced Workspace, and Internet Access
 
-[![Build Status](https://github.com/thenursesstation00-svg/AI-Assistant/workflows/Build%20AI%20Assistant%20Installer/badge.svg)](https://github.com/thenursesstation00-svg/AI-Assistant/actions)
+[![Build Status](https://github.com/thenursesstation00-svg/AI-Assistant/workflows/Build%20AI%20Assistant%20-%20All%20Platforms/badge.svg)](https://github.com/thenursesstation00-svg/AI-Assistant/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Electron](https://img.shields.io/badge/Electron-28.1.0-47848F?logo=electron)](https://www.electronjs.org/)
+[![Electron](https://img.shields.io/badge/Electron-39.2.3-47848F?logo=electron)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)](https://reactjs.org/)
-[![Node](https://img.shields.io/badge/Node-18+-339933?logo=node.js)](https://nodejs.org/)
+[![Node](https://img.shields.io/badge/Node-20+-339933?logo=node.js)](https://nodejs.org/)
+[![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D6?logo=windows)](https://www.microsoft.com/windows)
+[![macOS](https://img.shields.io/badge/macOS-10.15+-000000?logo=apple)](https://www.apple.com/macos)
+[![Linux](https://img.shields.io/badge/Linux-Ubuntu%20%7C%20Fedora-FCC624?logo=linux)](https://www.linux.org/)
+
+## 🎯 Platforms
+
+**Available for Windows, macOS, and Linux** with native installers:
+- **Windows**: NSIS Installer, Portable (x64, ARM64)
+- **macOS**: DMG, ZIP (Intel, Apple Silicon)
+- **Linux**: AppImage, DEB, RPM, Snap (x64, ARM64)
 
 ## ✨ Features
 
@@ -58,27 +68,48 @@ AI-Assistant/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Node.js** 18 or higher
-- **npm** 9 or higher
-- **Windows** 10/11 (other platforms untested)
+- **Node.js** 20 or higher
+- **npm** 10 or higher
+- **Operating System**: Windows 10+, macOS 10.15+, or recent Linux distribution
 - **Git** for version control
 
 ### Installation
 
+**Download Pre-built Installers** (Recommended):
+- Visit [Releases](https://github.com/thenursesstation00-svg/AI-Assistant/releases)
+- Download for your platform:
+  - Windows: `AI Assistant Setup 1.0.0.exe`
+  - macOS: `AI Assistant-1.0.0.dmg`
+  - Linux: `AI Assistant-1.0.0.AppImage`
+
+**Or Build from Source**:
+
 1. **Clone the repository**
-```powershell
-# AI Assistant Desktop App
+```bash
+git clone https://github.com/thenursesstation00-svg/AI-Assistant.git
+cd AI-Assistant
+```
 
-A desktop application that provides an AI-powered assistant interface with chat capabilities, search functionality, and administrative features. Built with Electron, React, and Express.
+2. **Install dependencies**
+```bash
+npm install
+cd backend && npm install && cd ..
+cd frontend && npm install && cd ..
+```
 
-## 🚀 Features
+3. **Build the application**
+```bash
+# Build for current platform
+npm run build
 
-- **AI Chat Interface**: Interactive chat powered by Anthropic's Claude AI
-- **Web Search Integration**: Search the web using SerpAPI or Google Custom Search
-- **Admin Panel**: Manage archives and view system information
-- **Desktop Application**: Cross-platform Electron app for Windows, macOS, and Linux
-- **Secure API Key Storage**: Uses OS-level keychain (Windows Credential Manager, macOS Keychain)
-- **Auto-Updates**: Built-in update mechanism using electron-updater
+# Or platform-specific:
+npm run build:win     # Windows
+npm run build:mac     # macOS
+npm run build:linux   # Linux
+npm run build:all     # All platforms
+```
+
+4. **Find installer** in `release/` directory
 - **Redis Caching**: Optional Redis support for search result caching
 
 ## 📋 Prerequisites
