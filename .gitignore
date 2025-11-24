@@ -94,3 +94,10 @@ api_keys.json
 credentials.json
 *.pem
 *.key
+
+# Build artifacts - zip files
+*.zip
+AI-Assistant-*/
+
+# Inventory files
+file-inventory-*.csv
