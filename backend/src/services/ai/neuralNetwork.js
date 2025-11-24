@@ -21,7 +21,7 @@ class NeuralNetworkSystem {
       useLocalModels: process.env.USE_LOCAL_MODELS === 'true',
       huggingfaceApiKey: process.env.HUGGINGFACE_API_KEY,
       openaiApiKey: process.env.OPENAI_API_KEY,
-      modelEndpoint: process.env.MODEL_ENDPOINT || 'https://api-inference.huggingface.co/models',
+      modelEndpoint: process.env.MODEL_ENDPOINT || 'https://router.huggingface.co/models',
       cacheTimeout: 3600000, // 1 hour
       maxCacheSize: 100
     };

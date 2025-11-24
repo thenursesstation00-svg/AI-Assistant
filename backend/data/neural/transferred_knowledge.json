@@ -1,0 +1,13 @@
+{
+  "lastUpdate": "2025-11-24T21:26:35.903Z",
+  "patterns": [
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    }
+  ]
+}
