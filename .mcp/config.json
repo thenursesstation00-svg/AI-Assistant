@@ -1,5 +1,4 @@
 {
-  "$schema": "https://modelcontextprotocol.io/schema/2024-11/config.json",
   "mcpServers": {
     "filesystem": {
       "command": "npx",
