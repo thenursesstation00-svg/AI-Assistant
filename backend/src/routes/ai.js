@@ -10,6 +10,9 @@ const selfLearning = require('../services/ai/selfLearning');
 const metaProgramming = require('../services/ai/metaProgramming');
 const externalEditors = require('../services/ai/externalEditors');
 const patternRecognition = require('../services/ai/patternRecognition');
+const neuralNetwork = require('../services/ai/neuralNetwork');
+const deepIntegration = require('../services/ai/deepIntegration');
+const optimization = require('../services/ai/optimization');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -434,5 +437,393 @@ function getExtension(language) {
 
   return extensions[language] || 'txt';
 }
+
+/**
+ * Neural Network Endpoints
+ */
+
+// Get code embedding
+router.post('/neural/embedding', async (req, res) => {
+  try {
+    const { code, language } = req.body;
+    
+    if (!code) {
+      return res.status(400).json({ error: 'Code is required' });
+    }
+
+    const embedding = await neuralNetwork.getCodeEmbedding(code, language);
+    
+    res.json({ 
+      success: true, 
+      embedding,
+      dimension: embedding.length
+    });
+  } catch (error) {
+    console.error('Neural embedding error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Predict code quality
+router.post('/neural/predict-quality', async (req, res) => {
+  try {
+    const { code, context } = req.body;
+    
+    if (!code) {
+      return res.status(400).json({ error: 'Code is required' });
+    }
+
+    const prediction = await neuralNetwork.predictQuality(code, context || {});
+    
+    res.json({ 
+      success: true, 
+      ...prediction
+    });
+  } catch (error) {
+    console.error('Quality prediction error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate code completion
+router.post('/neural/completion', async (req, res) => {
+  try {
+    const { prefix, context } = req.body;
+    
+    if (!prefix) {
+      return res.status(400).json({ error: 'Prefix is required' });
+    }
+
+    const result = await neuralNetwork.generateCompletion(prefix, context || {});
+    
+    res.json({ 
+      success: true, 
+      ...result
+    });
+  } catch (error) {
+    console.error('Completion generation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Transfer learning
+router.post('/neural/transfer-learning', async (req, res) => {
+  try {
+    const { codebaseData } = req.body;
+    
+    if (!codebaseData || !codebaseData.samples) {
+      return res.status(400).json({ error: 'Codebase samples are required' });
+    }
+
+    const result = await neuralNetwork.transferLearning(codebaseData);
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Transfer learning error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Calculate code similarity
+router.post('/neural/similarity', async (req, res) => {
+  try {
+    const { code1, code2, language } = req.body;
+    
+    if (!code1 || !code2) {
+      return res.status(400).json({ error: 'Both code snippets are required' });
+    }
+
+    const result = await neuralNetwork.calculateSimilarity(code1, code2, language);
+    
+    res.json({ 
+      success: true, 
+      ...result
+    });
+  } catch (error) {
+    console.error('Similarity calculation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get neural network stats
+router.get('/neural/stats', async (req, res) => {
+  try {
+    const stats = neuralNetwork.getStats();
+    res.json({ success: true, stats });
+  } catch (error) {
+    console.error('Neural stats error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Deep Integration Endpoints
+ */
+
+// Connect to LSP
+router.post('/integration/lsp/connect', async (req, res) => {
+  try {
+    const { language, workspaceRoot } = req.body;
+    
+    if (!language) {
+      return res.status(400).json({ error: 'Language is required' });
+    }
+
+    const serverId = await deepIntegration.connectToLSP(language, workspaceRoot);
+    
+    res.json({ 
+      success: true, 
+      serverId,
+      capabilities: deepIntegration.getLSPCapabilities(language)
+    });
+  } catch (error) {
+    console.error('LSP connection error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Request LSP completion
+router.post('/integration/lsp/completion', async (req, res) => {
+  try {
+    const { serverId, filePath, position } = req.body;
+    
+    if (!serverId || !filePath || !position) {
+      return res.status(400).json({ error: 'serverId, filePath, and position are required' });
+    }
+
+    const result = await deepIntegration.requestCompletion(serverId, filePath, position);
+    
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('LSP completion error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Start debug session
+router.post('/integration/debug/start', async (req, res) => {
+  try {
+    const { config } = req.body;
+    
+    if (!config) {
+      return res.status(400).json({ error: 'Debug config is required' });
+    }
+
+    const sessionId = await deepIntegration.startDebugSession(config);
+    
+    res.json({ success: true, sessionId });
+  } catch (error) {
+    console.error('Debug start error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Set breakpoint
+router.post('/integration/debug/breakpoint', async (req, res) => {
+  try {
+    const { sessionId, filePath, line } = req.body;
+    
+    if (!sessionId || !filePath || line === undefined) {
+      return res.status(400).json({ error: 'sessionId, filePath, and line are required' });
+    }
+
+    const breakpoint = await deepIntegration.setBreakpoint(sessionId, filePath, line);
+    
+    res.json({ success: true, breakpoint });
+  } catch (error) {
+    console.error('Breakpoint error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get debug variables
+router.get('/integration/debug/:sessionId/variables', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const { scopeId } = req.query;
+
+    const variables = await deepIntegration.getVariables(sessionId, scopeId);
+    
+    res.json({ success: true, variables });
+  } catch (error) {
+    console.error('Variables error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Register CI/CD hook
+router.post('/integration/cicd/register', async (req, res) => {
+  try {
+    const config = req.body;
+    
+    if (!config.type || !config.url) {
+      return res.status(400).json({ error: 'type and url are required' });
+    }
+
+    const hookId = await deepIntegration.registerCICDHook(config);
+    
+    res.json({ success: true, hookId });
+  } catch (error) {
+    console.error('CI/CD registration error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CI/CD webhook handler
+router.post('/integration/cicd/webhook/:hookId', async (req, res) => {
+  try {
+    const { hookId } = req.params;
+    const payload = req.body;
+
+    const result = await deepIntegration.handleCICDWebhook(hookId, payload);
+    
+    res.json(result);
+  } catch (error) {
+    console.error('CI/CD webhook error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get integration stats
+router.get('/integration/stats', async (req, res) => {
+  try {
+    const stats = deepIntegration.getStats();
+    const sessions = deepIntegration.getActiveSessions();
+    
+    res.json({ success: true, stats, sessions });
+  } catch (error) {
+    console.error('Integration stats error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Optimization Endpoints
+ */
+
+// Get cached value or compute
+router.post('/optimization/cache', async (req, res) => {
+  try {
+    const { key, ttl, tags } = req.body;
+    
+    if (!key) {
+      return res.status(400).json({ error: 'Cache key is required' });
+    }
+
+    const value = optimization.get(key);
+    
+    res.json({ 
+      success: true, 
+      cached: value !== null,
+      value
+    });
+  } catch (error) {
+    console.error('Cache error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Set cache value
+router.post('/optimization/cache/set', async (req, res) => {
+  try {
+    const { key, value, ttl, tags } = req.body;
+    
+    if (!key || value === undefined) {
+      return res.status(400).json({ error: 'key and value are required' });
+    }
+
+    optimization.set(key, value, { ttl, tags });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Cache set error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Invalidate cache by tag
+router.post('/optimization/cache/invalidate', async (req, res) => {
+  try {
+    const { tag } = req.body;
+    
+    if (!tag) {
+      return res.status(400).json({ error: 'Tag is required' });
+    }
+
+    const count = optimization.invalidateTag(tag);
+    
+    res.json({ success: true, invalidated: count });
+  } catch (error) {
+    console.error('Cache invalidation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get performance stats
+router.get('/optimization/performance', async (req, res) => {
+  try {
+    const { operation } = req.query;
+    const stats = optimization.getPerformanceStats(operation);
+    
+    res.json({ success: true, stats });
+  } catch (error) {
+    console.error('Performance stats error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get memory usage
+router.get('/optimization/memory', async (req, res) => {
+  try {
+    const usage = optimization.getMemoryUsage();
+    
+    res.json({ success: true, usage });
+  } catch (error) {
+    console.error('Memory usage error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate optimization report
+router.get('/optimization/report', async (req, res) => {
+  try {
+    const report = await optimization.generateReport();
+    
+    res.json({ success: true, report });
+  } catch (error) {
+    console.error('Report generation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Optimize database query
+router.post('/optimization/query', async (req, res) => {
+  try {
+    const { query, params } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({ error: 'Query is required' });
+    }
+
+    const optimization_result = optimization.optimizeQuery(query, params);
+    
+    res.json({ success: true, ...optimization_result });
+  } catch (error) {
+    console.error('Query optimization error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get optimization stats
+router.get('/optimization/stats', async (req, res) => {
+  try {
+    const stats = optimization.getStats();
+    
+    res.json({ success: true, stats });
+  } catch (error) {
+    console.error('Optimization stats error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;
