@@ -7,60 +7,61 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
       MY_SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+    - name: Check out repository
+      uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      - name: Ensure .env exists from .env.example
-        shell: pwsh
-        run: |
-          if (Test-Path '.env') {
-            Write-Host ".env already present"
+    - name: Ensure .env exists from .env.example
+      shell: pwsh
+      run: |
+        if (Test-Path '.env') {
+          Write-Host ".env already present"
+        } else {
+          if (Test-Path '.env.example') {
+            Copy-Item '.env.example' '.env'
+            Write-Host "Created .env from .env.example"
           } else {
-            if (Test-Path '.env.example') {
-              Copy-Item '.env.example' '.env'
-              Write-Host "Created .env from .env.example"
-            } else {
-              New-Item -Path .env -ItemType File -Force
-              Write-Host "Created empty .env"
-            }
+            New-Item -Path .env -ItemType File -Force
+            Write-Host "Created empty .env"
           }
+        }
 
-      - name: Inject token into .env (only if secrets exist)
-        shell: pwsh
-        run: |
-          $key = "INSTALLER_TOKEN"
-          # Prefer MY_SECRET_TOKEN if set, otherwise fall back to GH_TOKEN
-          $value = if ($env:MY_SECRET_TOKEN -ne '') { $env:MY_SECRET_TOKEN } elseif ($env:GH_TOKEN -ne '') { $env:GH_TOKEN } else { '' }
-          if ($value -eq '') {
-            Write-Host "No token available, skipping injection"
-            exit 0
-          }
-          if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
-          # Remove any existing line for the key then append
-          (Get-Content .env) -notmatch "^$($key)=" | Set-Content .env
-          Add-Content -Path .env -Value "$key=$value"
-          Write-Host "Injected secret into .env"
+    - name: Inject token into .env (only if secrets exist)
+      shell: pwsh
+      run: |
+        $key = "INSTALLER_TOKEN"
+        # Prefer MY_SECRET_TOKEN if set, otherwise fall back to GH_TOKEN
+        $value = if ($env:MY_SECRET_TOKEN -ne '') { $env:MY_SECRET_TOKEN } elseif ($env:GH_TOKEN -ne '') { $env:GH_TOKEN } else { '' }
+        if ($value -eq '') {
+          Write-Host "No token available, skipping injection"
+          exit 0
+        }
+        if (-not (Test-Path '.env')) { New-Item -Path .env -ItemType File -Force }
+        # Remove any existing line for the key then append
+        (Get-Content .env) -notmatch "^$($key)=" | Set-Content .env
+        Add-Content -Path .env -Value "$key=$value"
+        Write-Host "Injected secret into .env"
 
-      - name: Install Root Dependencies
-        run: npm ci
+    - name: Install Root Dependencies
+      run: npm ci
 
-      - name: Build the Application
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npm run build -- --publish never
+    - name: Build the Application
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: npm run build -- --publish never
 
-      - name: Upload Installer Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-assistant-installer
-          path: release/**
+    - name: Upload Installer Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ai-assistant-installer
+        path: release/**
