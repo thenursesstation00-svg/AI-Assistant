@@ -1,0 +1,679 @@
+openapi: 3.0.3
+info:
+  title: AI Assistant - Advanced Learning & Meta-Programming API
+  description: |
+    **Comprehensive API for Self-Learning AI System**
+    
+    This API provides access to a revolutionary AI system capable of:
+    - 🧠 **Self-Learning**: Learns from every action and continuously improves
+    - 🧬 **Meta-Programming**: Analyzes and improves its own code
+    - 🔗 **External Integration**: Seamless editing across GitHub, VS Code, and cloud IDEs
+    - 📊 **Pattern Recognition**: Discovers behavioral patterns and provides context-aware suggestions
+    - 🔍 **Anomaly Detection**: Identifies unusual patterns in real-time
+    - 🎯 **Workflow Clustering**: Groups similar action sequences automatically
+
+    ## Quick Start
+    
+    1. Record actions: `POST /api/ai/record-action`
+    2. Record outcomes: `POST /api/ai/record-outcome`
+    3. Get statistics: `GET /api/ai/learning-stats`
+    4. Self-optimize: `POST /api/ai/self-optimize`
+
+    ## Authentication
+    
+    All endpoints require API key authentication via `x-api-key` header.
+
+  version: 2.0.0
+  contact:
+    name: AI Assistant Support
+    url: https://github.com/thenursesstation00-svg/AI-Assistant
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001/api
+    description: Local development server
+  - url: https://api.ai-assistant.dev/api
+    description: Production server
+
+tags:
+  - name: Self-Learning
+    description: Reinforcement learning and continuous improvement
+  - name: Meta-Programming
+    description: Code analysis, improvement, and self-modification
+  - name: External Editors
+    description: Integration with GitHub, VS Code, CodeSandbox, etc.
+  - name: Pattern Recognition
+    description: Behavioral pattern mining and context-aware suggestions
+  - name: Analytics
+    description: Statistics, insights, and performance metrics
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /ai/record-action:
+    post:
+      tags: [Self-Learning]
+      summary: Record an action for learning
+      description: |
+        Records an action performed by the AI or user. The system will track this action
+        and learn patterns over time. Each action should later have an outcome recorded.
+      operationId: recordAction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, context]
+              properties:
+                type:
+                  type: string
+                  description: Type of action performed
+                  example: code_edit
+                  enum: [code_edit, code_analyze, code_compile, code_improve, code_test]
+                context:
+                  type: object
+                  description: Context in which action was performed
+                  properties:
+                    language:
+                      type: string
+                      example: javascript
+                    filePath:
+                      type: string
+                      example: src/app.js
+                    lineNumber:
+                      type: integer
+                      example: 42
+                parameters:
+                  type: object
+                  description: Parameters used for the action
+                  example: { "autoFormat": true, "checkSyntax": true }
+                metadata:
+                  type: object
+                  description: Additional metadata
+                  example: { "codeLength": 1500, "complexity": 15 }
+      responses:
+        '200':
+          description: Action recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  actionId:
+                    type: string
+                    description: Unique identifier for the recorded action
+                    example: action_1732450123456_abc123xyz
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ai/record-outcome:
+    post:
+      tags: [Self-Learning]
+      summary: Record the outcome of an action
+      description: |
+        Records the outcome of a previously recorded action. This feeds into the
+        reinforcement learning system to improve future decisions.
+      operationId: recordOutcome
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actionId, outcome]
+              properties:
+                actionId:
+                  type: string
+                  description: ID of the action (from record-action)
+                  example: action_1732450123456_abc123xyz
+                outcome:
+                  type: object
+                  required: [success]
+                  properties:
+                    success:
+                      type: boolean
+                      example: true
+                    executionTime:
+                      type: number
+                      description: Time taken in milliseconds
+                      example: 150
+                    quality:
+                      type: number
+                      description: Quality score (0-1)
+                      minimum: 0
+                      maximum: 1
+                      example: 0.85
+                    errors:
+                      type: array
+                      items:
+                        type: string
+                      example: []
+      responses:
+        '200':
+          description: Outcome recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ai/learning-stats:
+    get:
+      tags: [Self-Learning, Analytics]
+      summary: Get learning statistics
+      description: |
+        Returns comprehensive statistics about the AI's learning progress,
+        including success rates, quality metrics, and discovered patterns.
+      operationId: getLearningStats
+      responses:
+        '200':
+          description: Learning statistics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  stats:
+                    type: object
+                    properties:
+                      totalActions:
+                        type: integer
+                        example: 542
+                      successRate:
+                        type: number
+                        example: 0.87
+                      avgQuality:
+                        type: number
+                        example: 0.78
+                      strategiesLearned:
+                        type: integer
+                        example: 23
+                      knowledgeNodes:
+                        type: integer
+                        example: 15
+                  insights:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: improvement
+                        insight:
+                          type: string
+                          example: Quality improved by 12.3% over time
+                        confidence:
+                          type: number
+                          example: 0.9
+
+  /ai/self-optimize:
+    post:
+      tags: [Self-Learning]
+      summary: Trigger AI self-optimization
+      description: |
+        Triggers the AI to analyze its own performance and apply optimizations
+        based on learned patterns. This is a meta-learning operation.
+      operationId: selfOptimize
+      responses:
+        '200':
+          description: Optimization completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  appliedOptimizations:
+                    type: integer
+                    example: 5
+                  improvements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        area:
+                          type: string
+                          example: code_edit:javascript
+                        recommendation:
+                          type: string
+                          example: Apply discovered pattern for better results
+                        priority:
+                          type: string
+                          enum: [low, medium, high]
+
+  /ai/analyze-code:
+    post:
+      tags: [Meta-Programming]
+      summary: Analyze code for improvements
+      description: |
+        Performs comprehensive code analysis including:
+        - Function extraction
+        - Complexity calculation
+        - Pattern detection
+        - Improvement suggestions
+      operationId: analyzeCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, language]
+              properties:
+                code:
+                  type: string
+                  example: "function example() { console.log('test'); }"
+                language:
+                  type: string
+                  example: javascript
+                filePath:
+                  type: string
+                  example: app.js
+      responses:
+        '200':
+          description: Code analysis completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  analysis:
+                    type: object
+                    properties:
+                      lines:
+                        type: integer
+                      functions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                            line:
+                              type: integer
+                      complexity:
+                        type: integer
+                      patterns:
+                        type: array
+                        items:
+                          type: string
+                      improvements:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Improvement'
+
+  /ai/improve-code:
+    post:
+      tags: [Meta-Programming]
+      summary: Generate improved version of code
+      description: |
+        Generates an improved version of the provided code based on
+        suggested improvements. Changes can include:
+        - Adding error handling
+        - Improving logging
+        - Adding documentation
+        - Extracting constants
+      operationId: improveCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, language, improvements]
+              properties:
+                code:
+                  type: string
+                language:
+                  type: string
+                filePath:
+                  type: string
+                improvements:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Improvement'
+      responses:
+        '200':
+          description: Improved code generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  improved:
+                    type: string
+                    description: The improved code
+                  changes:
+                    type: object
+                    properties:
+                      added:
+                        type: integer
+                      removed:
+                        type: integer
+                      modified:
+                        type: integer
+
+  /ai/self-modify:
+    post:
+      tags: [Meta-Programming]
+      summary: Self-modify code with safety checks
+      description: |
+        **DANGEROUS OPERATION** - Allows the AI to modify its own code.
+        
+        Safety features:
+        - Whitelisted paths only
+        - Automatic backups
+        - Syntax validation
+        - Dangerous pattern detection
+        - Dry-run mode by default
+        - Optional test execution
+      operationId: selfModify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetFile, improvements]
+              properties:
+                targetFile:
+                  type: string
+                  example: backend/src/services/example.js
+                improvements:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Improvement'
+                dryRun:
+                  type: boolean
+                  default: true
+                  description: If true, changes are simulated but not applied
+                runTests:
+                  type: boolean
+                  default: false
+                  description: If true, runs tests before applying changes
+      responses:
+        '200':
+          description: Self-modification completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  file:
+                    type: string
+                  backup:
+                    type: string
+                  changes:
+                    type: object
+                  dryRun:
+                    type: boolean
+                  improved:
+                    type: string
+                    description: Only present if dryRun is true
+
+  /ai/open-external:
+    post:
+      tags: [External Editors]
+      summary: Open file in external editor
+      description: |
+        Opens a file in an external editor:
+        - **github**: GitHub web editor
+        - **codespaces**: GitHub Codespaces
+        - **vscode-local**: Local VS Code
+        - **vscode-remote**: VS Code web
+        - **codesandbox**: CodeSandbox
+        - **stackblitz**: StackBlitz
+      operationId: openExternal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [editor]
+              properties:
+                editor:
+                  type: string
+                  enum: [github, codespaces, vscode-local, vscode-remote, codesandbox, stackblitz]
+                owner:
+                  type: string
+                  description: GitHub repository owner
+                repo:
+                  type: string
+                  description: GitHub repository name
+                filePath:
+                  type: string
+                branch:
+                  type: string
+                  default: main
+                lineNumber:
+                  type: integer
+      responses:
+        '200':
+          description: External editor opened
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  sessionId:
+                    type: string
+                  url:
+                    type: string
+                  editor:
+                    type: string
+                  instructions:
+                    type: string
+
+  /ai/record-sequence:
+    post:
+      tags: [Pattern Recognition]
+      summary: Record action sequence for pattern mining
+      description: |
+        Records a sequence of actions for behavioral pattern mining.
+        The system will:
+        - Detect anomalies
+        - Update pattern database
+        - Provide insights
+      operationId: recordSequence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actions]
+              properties:
+                actions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      context:
+                        type: object
+                      timestamp:
+                        type: string
+      responses:
+        '200':
+          description: Sequence recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  sequenceId:
+                    type: string
+                  anomalies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Anomaly'
+
+  /ai/get-suggestions:
+    post:
+      tags: [Pattern Recognition]
+      summary: Get context-aware suggestions
+      description: |
+        Provides intelligent suggestions for the next action based on:
+        - Current action sequence
+        - Context (language, time, etc.)
+        - Historical patterns
+      operationId: getSuggestions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentSequence]
+              properties:
+                currentSequence:
+                  type: array
+                  items:
+                    type: object
+                context:
+                  type: object
+      responses:
+        '200':
+          description: Suggestions generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  suggestions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        action:
+                          type: string
+                        confidence:
+                          type: number
+                        frequency:
+                          type: integer
+                        reason:
+                          type: string
+
+  /ai/pattern-insights:
+    get:
+      tags: [Pattern Recognition, Analytics]
+      summary: Get pattern insights
+      description: |
+        Returns comprehensive insights about discovered patterns:
+        - Most common patterns
+        - Workflow clusters
+        - Recent anomalies
+        - Temporal patterns
+      operationId: getPatternInsights
+      responses:
+        '200':
+          description: Pattern insights retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  insights:
+                    type: array
+                    items:
+                      type: object
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: API key for authentication
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    Improvement:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [error-handling, logging, documentation, complexity, maintainability]
+        suggestion:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high]
+        value:
+          type: number
+          description: Optional numeric value (e.g., complexity score)
+
+    Anomaly:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [unusual_length, unknown_pattern, slow_execution]
+        severity:
+          type: string
+          enum: [low, medium, high]
+        details:
+          type: string
+        zscore:
+          type: number
+          description: Statistical z-score if applicable
+
+  responses:
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: An unexpected error occurred
+
+    Unauthorized:
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Invalid API key
