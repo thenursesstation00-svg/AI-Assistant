@@ -39,7 +39,7 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
   } else {
     // In development, try to load from built frontend first, fallback to dev server
-    const distPath = path.join(__dirname, 'frontend', 'dist', 'index.html');
+    const distPath = path.join(__dirname, '..', 'frontend', 'dist', 'index.html');
     if (require('fs').existsSync(distPath)) {
       mainWindow.loadFile(distPath);
     } else {
