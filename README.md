@@ -526,7 +526,8 @@ Or install Redis locally and set `REDIS_URL` in backend/.env.
 
 #### Required GitHub Secrets:
 
-- `GH_TOKEN`: Personal Access Token with `repo` scope
+- `GH_TOKEN2`: Personal Access Token with `repo` scope (primary)
+- `GH_TOKEN`: Personal Access Token with `repo` scope (fallback)
 - `CSC_LINK` (optional): Code signing certificate URL
 - `CSC_KEY_PASSWORD` (optional): Certificate password
 

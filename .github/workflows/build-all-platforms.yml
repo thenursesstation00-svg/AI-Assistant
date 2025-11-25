@@ -14,7 +14,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN2 || secrets.GH_TOKEN }}
 
     steps:
     - name: Check out repository
@@ -42,7 +42,7 @@ jobs:
 
     - name: Build Windows Installer
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN2 || secrets.GH_TOKEN }}
       run: npm run build:win -- --publish never
 
     - name: Upload Windows Artifacts
@@ -58,7 +58,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN2 || secrets.GH_TOKEN }}
 
     steps:
     - name: Check out repository
@@ -86,7 +86,7 @@ jobs:
 
     - name: Build macOS Installer
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN2 || secrets.GH_TOKEN }}
         CSC_IDENTITY_AUTO_DISCOVERY: false
       run: npm run build:mac -- --publish never
 
@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN2 || secrets.GH_TOKEN }}
 
     steps:
     - name: Check out repository
@@ -132,7 +132,7 @@ jobs:
 
     - name: Build Linux Packages
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN2 || secrets.GH_TOKEN }}
       run: npm run build:linux -- --publish never
 
     - name: Upload Linux Artifacts

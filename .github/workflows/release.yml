@@ -39,7 +39,7 @@ jobs:
       - name: Validate GH token and Package Electron App
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN2 || secrets.GH_TOKEN }}
         run: |
           node --version
           echo "Validating GH token access to repo..."
@@ -120,7 +120,7 @@ jobs:
       - name: Package Electron App (dry run)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN2 || secrets.GH_TOKEN }}
         run: |
           node ./scripts/validate_gh_token.js
           npm run build
