@@ -7,11 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Model Context Protocol (MCP) integration with 11 servers
-- Dependabot configuration for automatic dependency updates
-- Professional project structure reorganization
-- Comprehensive documentation in `/docs` directory
+## [1.0.1] - 2025-11-24
+
+### Security
+- **CRITICAL**: Removed exposed Anthropic API key from `.env.example` file
+- Added `BACKEND_API_KEY` placeholder to `.env.example` for proper auth setup
+
+### Fixed
+- Removed duplicate `require('dotenv').config()` call in `server.js`
+- Fixed `devcontainer.json` defaultFormatter configuration issue
+- Updated rate limiting defaults to production-safe values (15 min window, 100 max requests)
+- Improved `.env.example` documentation with multi-key auth examples
+
+### Changed
+- Cleaned up `server.js` header comment for clarity
+- Enhanced environment variable documentation
 
 ## [1.0.0] - 2025-11-22
 

@@ -1,4 +1,4 @@
-// backend/src.js (FINAL "Smart Response" Version)
+// backend/src/server.js - AI Assistant Backend Server
 
 // Load environment variables first
 require('dotenv').config();
@@ -22,8 +22,6 @@ initializeDatabase();
 // Initialize AI provider registry
 const providerRegistry = require('./services/ai/registry');
 providerRegistry.initialize();
-// Load environment variables from .env file
-require('dotenv').config();
 
 function parseKeys(){
   // support BACKEND_API_KEYS as JSON string mapping key->role, e.g. '{"key1":"admin"}'

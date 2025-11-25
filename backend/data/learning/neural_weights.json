@@ -1,0 +1,263 @@
+{
+  "test_action:d2d3aeb145d26ae1": {
+    "inputWeights": {
+      "hour_normalized": 0.034737500000000004,
+      "context_complexity": 0.004631666666666668
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5463166666666667,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:13127e2a0b5442bb": {
+    "inputWeights": {
+      "hour_normalized": -0.011250000000000003,
+      "param_value": 0,
+      "context_complexity": -0.0015000000000000005
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.485,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:350b13b78dfb830a": {
+    "inputWeights": {
+      "hour_normalized": -0.010329545454545458,
+      "param_value": -0.0013772727272727278,
+      "context_complexity": -0.0013772727272727278
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.48622727272727273,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:edcd6b23110056dd": {
+    "inputWeights": {
+      "hour_normalized": -0.009125000000000003,
+      "param_value": -0.0024333333333333342,
+      "context_complexity": -0.0012166666666666671
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.48783333333333334,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:09a3d9480fd3b8a1": {
+    "inputWeights": {
+      "hour_normalized": -0.0077019230769230776,
+      "param_value": -0.003080769230769231,
+      "context_complexity": -0.001026923076923077
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.48973076923076925,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:0a9d87ccca5c7453": {
+    "inputWeights": {
+      "hour_normalized": -0.00610714285714286,
+      "param_value": -0.0032571428571428586,
+      "context_complexity": -0.0008142857142857147
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.4918571428571429,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:cf25b4498e1d66c6": {
+    "inputWeights": {
+      "hour_normalized": -0.004375000000000001,
+      "param_value": -0.0029166666666666677,
+      "context_complexity": -0.0005833333333333336
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.49416666666666664,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:9edb25560d36df25": {
+    "inputWeights": {
+      "hour_normalized": 0.023718750000000004,
+      "param_value": 0.018975000000000002,
+      "context_complexity": 0.003162500000000001
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.531625,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:2b729520484fb972": {
+    "inputWeights": {
+      "hour_normalized": 0.02565441176470589,
+      "param_value": 0.02394411764705883,
+      "context_complexity": 0.0034205882352941193
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5342058823529412,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:634222b3436c5801": {
+    "inputWeights": {
+      "hour_normalized": 0.027666666666666673,
+      "param_value": 0.029511111111111116,
+      "context_complexity": 0.0036888888888888896
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5368888888888889,
+    "bias": 0,
+    "activations": []
+  },
+  "neural_test:bcb943de69ca1981": {
+    "inputWeights": {
+      "hour_normalized": 0.029743421052631586,
+      "param_value": 0.03569210526315791,
+      "context_complexity": 0.003965789473684212
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5396578947368421,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:cfdb068009b10e71": {
+    "inputWeights": {
+      "hour_normalized": 0.02812500000000001,
+      "context_complexity": 0.0037500000000000016
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5375,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:028e2d4726bb3778": {
+    "inputWeights": {
+      "hour_normalized": 0.02812500000000001,
+      "context_complexity": 0.0037500000000000016
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5375,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:d9db7e0731f883e0": {
+    "inputWeights": {
+      "hour_normalized": 0.02812500000000001,
+      "context_complexity": 0.0037500000000000016
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5375,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:bf6d4a8e12412788": {
+    "inputWeights": {
+      "hour_normalized": 0.02812500000000001,
+      "context_complexity": 0.0037500000000000016
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5375,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:1542f3d7456bb883": {
+    "inputWeights": {
+      "hour_normalized": 0.02812500000000001,
+      "context_complexity": 0.0037500000000000016
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5375,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:eb97e10801f99437": {
+    "inputWeights": {
+      "hour_normalized": 0.03862499999999999,
+      "context_complexity": 0.005149999999999999
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5515,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:caac184bcf250f82": {
+    "inputWeights": {
+      "hour_normalized": 0.03862499999999999,
+      "context_complexity": 0.005149999999999999
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5515,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:84722d154486eb21": {
+    "inputWeights": {
+      "hour_normalized": 0.03862499999999999,
+      "context_complexity": 0.005149999999999999
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5515,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:bd367ea8b5c46c9f": {
+    "inputWeights": {
+      "hour_normalized": 0.03862499999999999,
+      "context_complexity": 0.005149999999999999
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5515,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:7cdcd1a5ed106657": {
+    "inputWeights": {
+      "hour_normalized": 0.02812500000000001,
+      "context_complexity": 0.0037500000000000016
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5375,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:8447bb584d5c50af": {
+    "inputWeights": {
+      "hour_normalized": 0.02812500000000001,
+      "context_complexity": 0.0037500000000000016
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5375,
+    "bias": 0,
+    "activations": []
+  },
+  "hourly_test:7046222d851bbc92": {
+    "inputWeights": {
+      "hour_normalized": 0.02812500000000001,
+      "context_complexity": 0.0037500000000000016
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.5375,
+    "bias": 0,
+    "activations": []
+  },
+  "improvement_test:8ff9b7eeb46095d5": {
+    "inputWeights": {
+      "hour_normalized": 0.35198923586765907,
+      "context_complexity": 0
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.9693189811568785,
+    "bias": 0,
+    "activations": []
+  },
+  "convergence_test:9ad9241ef581df34": {
+    "inputWeights": {
+      "hour_normalized": 0.31666507760029433,
+      "param_value": 0.17733244345616486,
+      "context_complexity": 0.042222010346705925
+    },
+    "hiddenWeights": {},
+    "outputWeight": 0.9222201034670592,
+    "bias": 0,
+    "activations": []
+  }
+}

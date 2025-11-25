@@ -1,6 +1,6 @@
 {
   "name": "ai-assistant-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Professional AI Assistant Desktop Application with Multi-Provider Support",
   "author": "thenursesstation00-svg",
   "homepage": "./",
@@ -37,6 +37,7 @@
   "build": {
     "appId": "com.thenursesstation.ai-assistant",
     "productName": "AI Assistant",
+    "npmRebuild": false,
     "files": [
       "src/main.js",
       "src/preload.js",
@@ -53,15 +54,10 @@
     "win": {
       "target": [
         {
-          "target": "nsis",
-          "arch": ["x64", "arm64"]
-        },
-        {
           "target": "portable",
           "arch": ["x64"]
         }
       ],
-      "icon": "build/icon.ico",
       "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
@@ -83,7 +79,6 @@
         }
       ],
       "category": "public.app-category.productivity",
-      "icon": "build/icon.icns",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -111,23 +106,10 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64", "arm64"]
-        },
-        {
-          "target": "deb",
-          "arch": ["x64", "arm64"]
-        },
-        {
-          "target": "rpm",
-          "arch": ["x64"]
-        },
-        {
-          "target": "snap",
           "arch": ["x64"]
         }
       ],
       "category": "Utility",
-      "icon": "build/icons",
       "maintainer": "thenursesstation00-svg",
       "synopsis": "Professional AI Assistant with Multi-Provider Support",
       "description": "Desktop AI assistant with support for multiple AI providers, web search, scraping, and workspace features."

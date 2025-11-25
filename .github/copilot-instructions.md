@@ -5,26 +5,27 @@
 **Three-tier Electron desktop application** with multi-provider AI, workspace UI, and MCP integration.
 
 - **Backend** (`backend/`) — Express.js Node service (port 3001)
-  - Entry: `backend/src/server.js`
-  - Routes: `backend/src/routes/` (thin controllers)
+  - Entry: `backend/src/server.js` (includes inline middleware for API key auth)
+  - Routes: `backend/src/routes/` (thin controllers delegate to services)
   - Business logic: `backend/src/services/` (AI providers, search, scraping)
   - Database: SQLite via `better-sqlite3` in `backend/src/database/`
-  - Auth: `backend/src/middleware/apiKeyAuth.js` (constant-time comparison)
-  - Tests: `backend/tests/` (Jest with mocked providers)
+  - Auth: Inline `requireAPIKey` middleware in `server.js` (constant-time comparison)
+  - Tests: `backend/tests/` (Jest with mocked providers via `jest.mock`)
 
-- **Frontend** (`frontend/`) — Vite + React SPA
+- **Frontend** (`frontend/`) — Vite + React SPA (ES modules)
   - Entry: `frontend/src/main.jsx`
   - Main component: `frontend/src/App.jsx` (classic chat + workspace mode)
-  - Panels: `frontend/src/panels/` (ChatPanel, EditorPanel, TerminalPanel)
-  - Styling: `frontend/src/Chat.css`, `frontend/src/PluginManager.css`
+  - Panels: `frontend/src/panels/` (ChatPanel, EditorPanel, TerminalPanel, FileBrowser)
+  - API layer: `frontend/src/api.js` (centralized fetch wrappers with auth headers)
+  - Styling: Component-specific CSS (`Chat.css`, `PluginManager.css`)
 
 - **Electron** (`src/`) — Desktop packaging layer
-  - Main process: `src/main.js` (BrowserWindow, auto-updater, IPC)
-  - Preload: `src/preload.js` (contextBridge for secure IPC)
+  - Main process: `src/main.js` (BrowserWindow, auto-updater, IPC, menu)
+  - Preload: `src/preload.js` (contextBridge for secure IPC, exposes backend API key)
   - Keytar integration: OS-level credential storage (Windows Credential Manager, macOS Keychain)
 
 - **MCP Servers** (`.mcp/config.json`) — 11 Model Context Protocol servers
-  - Filesystem, GitHub, Brave Search, Fetch, Puppeteer, Git, Memory, Sequential Thinking, SQLite, Everything, Shell (disabled)
+  - Filesystem, GitHub, Brave Search, Fetch, Puppeteer, Git, Memory, Sequential Thinking, SQLite, Everything, Shell (disabled by default)
 
 ## Developer Workflows
 
@@ -125,17 +126,18 @@ router.post('/', requireAPIKey, async (req, res) => {
 - Tracks API key rotation, usage limits, rate limits
 
 ### 3. Secure API Key Handling
-**Backend auth** (`backend/src/middleware/apiKeyAuth.js`):
-- Uses **constant-time comparison** to prevent timing attacks
-- Supports single key (`BACKEND_API_KEY`) or multi-key mapping (`BACKEND_API_KEYS`)
-- Attaches `req.apiKeyRole` and `req.apiKey` for downstream use
-- **Rejects provider keys** (e.g., `ANTHROPIC_API_KEY`) if accidentally sent as `x-api-key`
+**Backend auth** (inline in `backend/src/server.js`, not separate middleware file):
+- Uses **constant-time comparison** via `requireAPIKey` function to prevent timing attacks
+- Supports single key (`BACKEND_API_KEY`) or multi-key JSON mapping (`BACKEND_API_KEYS='{"key":"role"}'`)
+- Attaches `req.apiKeyRole` and `req.apiKey` for downstream role-based access control
+- **Rejects provider keys** if `ANTHROPIC_API_KEY` is accidentally sent as `x-api-key` (returns 401)
+- Can bypass auth for local dev with `REQUIRE_API_KEY=false` (never use in production)
 
 **Frontend credential flow**:
 1. First-run modal (`FirstRunModal.jsx`) prompts user for `BACKEND_API_KEY`
-2. Stored in OS keychain via `window.backendKeyStore.setKey()` (IPC to main process)
+2. Stored in OS keychain via `window.backendKeyStore.setKey()` (IPC to main process → keytar)
 3. Retrieved via `getBackendApiKeyAsync()` in `frontend/src/config.js`
-4. Sent as `x-api-key` header in all API requests
+4. All API calls in `frontend/src/api.js` attach `x-api-key` header automatically
 
 ### 4. Test Fixtures as Truth
 JSON files in `backend/archives_report/` and `backend/tmp_archive_response.json` are **canonical fixtures** for integration tests:
@@ -159,15 +161,17 @@ node backend\src\database\mcp-server.js  # Test SQLite MCP
 ## Security Checklist
 
 ### ⚠️ Immediate Action Items
-1. **Rotate hardcoded Anthropic key** in `backend/src/server.js` (line ~78) before public deployment
-2. **Never commit** `backend/.env` or `backend/data/api_keys.json` with real secrets
-3. **Use keytar** for credential storage in packaged apps (not localStorage)
+1. **Never commit** real API keys - `.env` files are gitignored but check `.env.example` has placeholders only
+2. **Rotate any exposed keys** immediately if accidentally committed (especially `ANTHROPIC_API_KEY`)
+3. **Use keytar** for credential storage in packaged apps (not localStorage or plain files)
 
 ### Best Practices
-- **Secrets**: Load from environment variables, never hardcode
-- **API keys**: Separate `BACKEND_API_KEY` (frontend→backend) from provider keys (backend→AI)
-- **Rate limiting**: Configure `RATE_LIMIT_WINDOW` and `RATE_LIMIT_MAX_REQUESTS` for production
-- **CORS**: Set `CORS_ORIGIN` to match frontend origin (avoid wildcard)
+- **Secrets**: Load from environment variables via `dotenv`, never hardcode in source
+- **API keys**: Separate `BACKEND_API_KEY` (frontend→backend auth) from provider keys (backend→AI services)
+- **Constant-time comparison**: Auth middleware prevents timing attacks (`requireAPIKey` in `server.js`)
+- **Rate limiting**: Configure `RATE_LIMIT_WINDOW` and `RATE_LIMIT_MAX_REQUESTS` in production `.env`
+- **CORS**: Set `CORS_ORIGIN` to match frontend origin (e.g., `http://localhost:5173` dev, specific domain prod)
+- **Provider key protection**: Backend rejects requests using `ANTHROPIC_API_KEY` as `x-api-key`
 
 ## CI/CD & Release Process
 
@@ -178,6 +182,7 @@ node backend\src\database\mcp-server.js  # Test SQLite MCP
   - Runs backend tests
   - Packages Electron app (Windows NSIS installer)
   - Publishes to GitHub Releases
+- **`.github/workflows/build-all-platforms.yml`** — Multi-platform builds (Windows, macOS, Linux)
 
 ### Required GitHub Secrets
 - `GH_TOKEN` — Personal Access Token with `repo` scope (for private repos)
@@ -191,6 +196,13 @@ git push origin v1.0.0
 # GitHub Actions will build and create release automatically
 ```
 
+### Build Targets (via electron-builder)
+**Windows**: NSIS installer (.exe) + Portable, supports x64 and ARM64  
+**macOS**: DMG + ZIP for Intel and Apple Silicon (arm64)  
+**Linux**: AppImage, DEB, RPM, Snap for x64 and ARM64
+
+Build configuration in root `package.json` under `build` key.
+
 ### Auto-Update System
 **Electron app** (`src/main.js`) integrates `electron-updater`:
 - Auto-downloads updates from GitHub Releases
@@ -201,14 +213,18 @@ git push origin v1.0.0
 
 ### Adding a New API Route
 1. Create route file in `backend/src/routes/` (e.g., `newFeature.js`)
-2. Implement business logic in `backend/src/services/`
-3. Add route to `backend/src/server.js`:
+2. Implement business logic in `backend/src/services/` (keep routes thin)
+3. Register route in `backend/src/server.js`:
    ```javascript
    const newFeatureRoutes = require('./routes/newFeature');
    app.use('/api/new-feature', requireAPIKey, newFeatureRoutes);
    ```
-4. Write tests in `backend/tests/newFeature.test.js` (mock services with Jest)
+4. Write tests in `backend/tests/newFeature.test.js`:
+   - Use `jest.mock()` for external services
+   - Use `supertest` with Express app for HTTP testing
+   - Mock provider with `mockProvider.sendMessage.mockResolvedValue(...)`
 5. Run `npm test` from `backend/` to validate
+6. Update `frontend/src/api.js` if frontend needs to call this endpoint
 
 ### Modifying AI Provider Behavior
 1. Locate provider in `backend/src/services/ai/providers/` (e.g., `anthropic.js`)
@@ -221,8 +237,10 @@ git push origin v1.0.0
 1. Identify component in `frontend/src/` or `frontend/src/panels/`
 2. Update JSX and co-located CSS (e.g., `Chat.css`, `PluginManager.css`)
 3. Sync API calls with `frontend/src/api.js` (centralized fetch wrappers)
-4. Test with `npm run dev` in `frontend/` directory
-5. Rebuild with `npm run build` before packaging Electron app
+4. Ensure credentials retrieved via `getBackendApiKeyAsync()` before API calls
+5. Test with `npm run dev` in `frontend/` directory (Vite dev server on port 5173)
+6. Rebuild with `npm run build` before packaging Electron app
+7. For workspace panels, use `react-grid-layout` with saved layouts in SQLite
 
 ### Running Background Workers
 Example: AV scanner worker (`backend/src/workers/avWorker.js`):
@@ -279,15 +297,18 @@ npx jest tests/archive.integration.test.js -i --runInBand
 | File | Purpose |
 |------|---------|
 | `backend/src/server.js` | Express app entry, route registration |
-| `backend/src/middleware/apiKeyAuth.js` | API key validation (constant-time) |
+| `backend/src/server.js` (inline) | API key validation middleware (`requireAPIKey`, `requireRole`) |
 | `backend/src/services/ai/registry.js` | Multi-provider AI management |
 | `backend/src/database/db.js` | SQLite connection & schema init |
 | `frontend/src/App.jsx` | Main UI component (chat + workspace) |
+| `frontend/src/api.js` | Centralized API client with auth headers |
+| `frontend/src/config.js` | Backend API key retrieval via IPC |
 | `src/main.js` | Electron main process (IPC, auto-update) |
 | `src/preload.js` | Secure IPC bridge (contextBridge) |
 | `.mcp/config.json` | MCP server configuration |
 | `.github/workflows/release.yml` | CI/CD release pipeline |
 | `backend/tests/chat.test.js` | Example test with mocked providers |
+| `backend/.env.example` | Environment variable template (includes example API key - replace before use) |
 
 ## Documentation Index
 

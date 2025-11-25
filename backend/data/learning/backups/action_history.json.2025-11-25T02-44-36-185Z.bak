@@ -1,0 +1,2394 @@
+[
+  {
+    "id": "action_1764038673724_4ow4be50c",
+    "timestamp": "2025-11-25T02:44:33.724Z",
+    "type": "code_edit",
+    "context": {
+      "file": "test.js",
+      "language": "javascript"
+    },
+    "parameters": {
+      "autoFormat": true
+    },
+    "outcome": null,
+    "metrics": null,
+    "metadata": {
+      "user": "test_user"
+    }
+  },
+  {
+    "id": "action_1764038673729_zoguednlp",
+    "timestamp": "2025-11-25T02:44:33.729Z",
+    "type": "test_action",
+    "context": {
+      "mode": "test"
+    },
+    "parameters": {
+      "param1": "value1"
+    },
+    "outcome": {
+      "success": true,
+      "executionTime": 150,
+      "codeQuality": 0.9,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 150,
+      "resourceUsage": {},
+      "quality": 0.99,
+      "efficiency": 0.6666666666666666,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038673799_sw6wkl9jm",
+    "timestamp": "2025-11-25T02:44:33.799Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 0
+    },
+    "parameters": {
+      "value": 0
+    },
+    "outcome": {
+      "success": false,
+      "quality": 0,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": false,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038673853_tjk5buvi4",
+    "timestamp": "2025-11-25T02:44:33.853Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 1
+    },
+    "parameters": {
+      "value": 10
+    },
+    "outcome": {
+      "success": false,
+      "quality": 0.1,
+      "executionTime": 110,
+      "errors": []
+    },
+    "metrics": {
+      "success": false,
+      "executionTime": 110,
+      "resourceUsage": {},
+      "quality": 0.1,
+      "efficiency": 0.9090909090909091,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038673868_hm6or1n0q",
+    "timestamp": "2025-11-25T02:44:33.868Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 2
+    },
+    "parameters": {
+      "value": 20
+    },
+    "outcome": {
+      "success": false,
+      "quality": 0.2,
+      "executionTime": 120,
+      "errors": []
+    },
+    "metrics": {
+      "success": false,
+      "executionTime": 120,
+      "resourceUsage": {},
+      "quality": 0.2,
+      "efficiency": 0.8333333333333334,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038673999_mk22degb1",
+    "timestamp": "2025-11-25T02:44:33.999Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 3
+    },
+    "parameters": {
+      "value": 30
+    },
+    "outcome": {
+      "success": false,
+      "quality": 0.3,
+      "executionTime": 130,
+      "errors": []
+    },
+    "metrics": {
+      "success": false,
+      "executionTime": 130,
+      "resourceUsage": {},
+      "quality": 0.3,
+      "efficiency": 0.7692307692307693,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674043_32v36rlzf",
+    "timestamp": "2025-11-25T02:44:34.043Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 4
+    },
+    "parameters": {
+      "value": 40
+    },
+    "outcome": {
+      "success": false,
+      "quality": 0.4,
+      "executionTime": 140,
+      "errors": []
+    },
+    "metrics": {
+      "success": false,
+      "executionTime": 140,
+      "resourceUsage": {},
+      "quality": 0.4,
+      "efficiency": 0.7142857142857143,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674098_pecd8n1rs",
+    "timestamp": "2025-11-25T02:44:34.098Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 5
+    },
+    "parameters": {
+      "value": 50
+    },
+    "outcome": {
+      "success": false,
+      "quality": 0.5,
+      "executionTime": 150,
+      "errors": []
+    },
+    "metrics": {
+      "success": false,
+      "executionTime": 150,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 0.6666666666666666,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674113_ec2b3guvg",
+    "timestamp": "2025-11-25T02:44:34.113Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 6
+    },
+    "parameters": {
+      "value": 60
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.6,
+      "executionTime": 160,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 160,
+      "resourceUsage": {},
+      "quality": 0.6,
+      "efficiency": 0.625,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674185_h1sc6rlrw",
+    "timestamp": "2025-11-25T02:44:34.185Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 7
+    },
+    "parameters": {
+      "value": 70
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.7,
+      "executionTime": 170,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 170,
+      "resourceUsage": {},
+      "quality": 0.7,
+      "efficiency": 0.5882352941176471,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674212_8wjt56mqy",
+    "timestamp": "2025-11-25T02:44:34.212Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 8
+    },
+    "parameters": {
+      "value": 80
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8,
+      "executionTime": 180,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 180,
+      "resourceUsage": {},
+      "quality": 0.8,
+      "efficiency": 0.5555555555555556,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674330_07wkiai9r",
+    "timestamp": "2025-11-25T02:44:34.330Z",
+    "type": "neural_test",
+    "context": {
+      "iteration": 9
+    },
+    "parameters": {
+      "value": 90
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.9,
+      "executionTime": 190,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 190,
+      "resourceUsage": {},
+      "quality": 0.9,
+      "efficiency": 0.5263157894736842,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674367_cwk9zeswb",
+    "timestamp": "2025-11-25T02:44:34.367Z",
+    "type": "action_a",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674367_mqh289vxq",
+    "timestamp": "2025-11-25T02:44:34.367Z",
+    "type": "action_b",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674368_gf6jnpprj",
+    "timestamp": "2025-11-25T02:44:34.368Z",
+    "type": "action_a",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674368_xxjke5et4",
+    "timestamp": "2025-11-25T02:44:34.368Z",
+    "type": "action_b",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674368_kfc0vhswx",
+    "timestamp": "2025-11-25T02:44:34.368Z",
+    "type": "action_a",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674368_kdz5nut4q",
+    "timestamp": "2025-11-25T02:44:34.368Z",
+    "type": "action_b",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674368_rdluubmuk",
+    "timestamp": "2025-11-25T02:44:34.368Z",
+    "type": "action_a",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674368_ezxrabnic",
+    "timestamp": "2025-11-25T02:44:34.368Z",
+    "type": "action_b",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674368_36oozlc0h",
+    "timestamp": "2025-11-25T02:44:34.368Z",
+    "type": "action_a",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674368_sqirbrapi",
+    "timestamp": "2025-11-25T02:44:34.368Z",
+    "type": "action_b",
+    "context": {},
+    "parameters": {},
+    "outcome": null,
+    "metrics": null,
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674376_svv6mc25v",
+    "timestamp": "2025-11-25T02:44:34.376Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 0
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-24T08:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674474_mgjqo3wf0",
+    "timestamp": "2025-11-25T02:44:34.474Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 2
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-24T10:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674486_jj16xllia",
+    "timestamp": "2025-11-25T02:44:34.486Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 4
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-24T12:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674532_byyng07pe",
+    "timestamp": "2025-11-25T02:44:34.532Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 6
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-24T14:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674582_nfi1pvljl",
+    "timestamp": "2025-11-25T02:44:34.582Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 8
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-24T16:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674598_raar9uwqs",
+    "timestamp": "2025-11-25T02:44:34.598Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 10
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.9,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-24T18:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674615_wowoykomp",
+    "timestamp": "2025-11-25T02:44:34.615Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 12
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.9,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-24T20:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674632_3imigl6jl",
+    "timestamp": "2025-11-25T02:44:34.632Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 14
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.9,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-24T22:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674642_5xgi59uh5",
+    "timestamp": "2025-11-25T02:44:34.642Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 16
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.9,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-25T00:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674652_to8c83zdq",
+    "timestamp": "2025-11-25T02:44:34.652Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 18
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-25T02:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674683_uit0n1vkx",
+    "timestamp": "2025-11-25T02:44:34.683Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 20
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-25T04:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674697_s27hqeh4u",
+    "timestamp": "2025-11-25T02:44:34.697Z",
+    "type": "hourly_test",
+    "context": {
+      "hour": 22
+    },
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {
+      "timestamp": "2025-11-25T06:44:34.376Z"
+    }
+  },
+  {
+    "id": "action_1764038674725_qmtc56m6f",
+    "timestamp": "2025-11-25T02:44:34.725Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.4384885761364464,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.4384885761364464,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674820_3e44vf1z1",
+    "timestamp": "2025-11-25T02:44:34.820Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5135040162727766,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5135040162727766,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674847_jz7c0yucd",
+    "timestamp": "2025-11-25T02:44:34.847Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5805750506678489,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5805750506678489,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674860_eotlkp3lq",
+    "timestamp": "2025-11-25T02:44:34.860Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.44351809542327697,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.44351809542327697,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674884_ic88w53rs",
+    "timestamp": "2025-11-25T02:44:34.884Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5708293671779427,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5708293671779427,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674903_8e4cys6jz",
+    "timestamp": "2025-11-25T02:44:34.903Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.41290153174490307,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.41290153174490307,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674928_u4kpqmfg2",
+    "timestamp": "2025-11-25T02:44:34.928Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.4585581234590628,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.4585581234590628,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674947_iiivpt3e8",
+    "timestamp": "2025-11-25T02:44:34.947Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5953102947271702,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5953102947271702,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674961_ledwcsanx",
+    "timestamp": "2025-11-25T02:44:34.961Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.40651866769462397,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.40651866769462397,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038674984_uc16gmkl3",
+    "timestamp": "2025-11-25T02:44:34.984Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5391745971613827,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5391745971613827,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675009_vdclisz98",
+    "timestamp": "2025-11-25T02:44:35.009Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5345364934650381,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5345364934650381,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675024_8xp1fuo5a",
+    "timestamp": "2025-11-25T02:44:35.024Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.537169004314618,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.537169004314618,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675041_s2b9moq2z",
+    "timestamp": "2025-11-25T02:44:35.041Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5937609066263003,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5937609066263003,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675053_gto4zoxit",
+    "timestamp": "2025-11-25T02:44:35.053Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5967595659039657,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5967595659039657,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675066_2o5u4efra",
+    "timestamp": "2025-11-25T02:44:35.066Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5478165281108911,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5478165281108911,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675082_3j6s17jn8",
+    "timestamp": "2025-11-25T02:44:35.082Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5197009261818833,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5197009261818833,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675116_frp6k86s5",
+    "timestamp": "2025-11-25T02:44:35.116Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5784202291857256,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5784202291857256,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675143_wp402u9d8",
+    "timestamp": "2025-11-25T02:44:35.143Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.45474822344446775,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.45474822344446775,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675157_rg0dbtmkp",
+    "timestamp": "2025-11-25T02:44:35.157Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.4599905887810597,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.4599905887810597,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675177_o6zos27bn",
+    "timestamp": "2025-11-25T02:44:35.177Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5815146810091514,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5815146810091514,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675194_cac37yg7q",
+    "timestamp": "2025-11-25T02:44:35.194Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.4341078036335484,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.4341078036335484,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675217_feev4kjpd",
+    "timestamp": "2025-11-25T02:44:35.217Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5660631982816022,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5660631982816022,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675268_gezjbp6q7",
+    "timestamp": "2025-11-25T02:44:35.268Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.5368266869741005,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.5368266869741005,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675293_k8lgbkcni",
+    "timestamp": "2025-11-25T02:44:35.293Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.521151703135187,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.521151703135187,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675311_cjm995a6t",
+    "timestamp": "2025-11-25T02:44:35.311Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.4869641685476796,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.4869641685476796,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675330_1cgejy318",
+    "timestamp": "2025-11-25T02:44:35.330Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8811797656778869,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8811797656778869,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675346_5fp3pl232",
+    "timestamp": "2025-11-25T02:44:35.346Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7868102264993708,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7868102264993708,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675373_p9yq6z7s6",
+    "timestamp": "2025-11-25T02:44:35.373Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8725085719315555,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8725085719315555,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675477_kxswngmu8",
+    "timestamp": "2025-11-25T02:44:35.477Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8951089828248974,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8951089828248974,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675491_pq47o1oin",
+    "timestamp": "2025-11-25T02:44:35.491Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7996749915826706,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7996749915826706,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675507_ua15e52h3",
+    "timestamp": "2025-11-25T02:44:35.507Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7597627517284906,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7597627517284906,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675517_r8qkzdigx",
+    "timestamp": "2025-11-25T02:44:35.517Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7022536816547907,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7022536816547907,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675536_p5ule29h8",
+    "timestamp": "2025-11-25T02:44:35.536Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8092478963532949,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8092478963532949,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675552_trnzi94au",
+    "timestamp": "2025-11-25T02:44:35.552Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8260813525483219,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8260813525483219,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675567_3yv8c2aya",
+    "timestamp": "2025-11-25T02:44:35.567Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.80669094733449,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.80669094733449,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675581_romjh31me",
+    "timestamp": "2025-11-25T02:44:35.581Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7242264736641117,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7242264736641117,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675593_zx6h6wnob",
+    "timestamp": "2025-11-25T02:44:35.593Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.768273683786294,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.768273683786294,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675612_d9xismbcu",
+    "timestamp": "2025-11-25T02:44:35.612Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8121944943917122,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8121944943917122,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675627_1577xftsd",
+    "timestamp": "2025-11-25T02:44:35.627Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7669699754650661,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7669699754650661,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675652_ziv0i876e",
+    "timestamp": "2025-11-25T02:44:35.652Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7287379438991269,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7287379438991269,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675665_tqtbagf7s",
+    "timestamp": "2025-11-25T02:44:35.665Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.784481860128333,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.784481860128333,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675678_1kl9m7857",
+    "timestamp": "2025-11-25T02:44:35.678Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8214197289277437,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8214197289277437,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675690_gl8kq873v",
+    "timestamp": "2025-11-25T02:44:35.690Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8427607664516934,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8427607664516934,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675703_fhfxv4t1i",
+    "timestamp": "2025-11-25T02:44:35.703Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.793498585889567,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.793498585889567,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675718_yy0yrk8ao",
+    "timestamp": "2025-11-25T02:44:35.718Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8166216074173229,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8166216074173229,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675734_sltj0insr",
+    "timestamp": "2025-11-25T02:44:35.734Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7517392213282044,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7517392213282044,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675750_883fee1m9",
+    "timestamp": "2025-11-25T02:44:35.750Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8036508134849248,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8036508134849248,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675763_nae997msh",
+    "timestamp": "2025-11-25T02:44:35.763Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8351038834503888,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8351038834503888,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675775_8gsjksszh",
+    "timestamp": "2025-11-25T02:44:35.775Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.8497839293531424,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8497839293531424,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675784_4ukvjr9h1",
+    "timestamp": "2025-11-25T02:44:35.784Z",
+    "type": "improvement_test",
+    "context": {},
+    "parameters": {},
+    "outcome": {
+      "success": true,
+      "quality": 0.7254068451388745,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.7254068451388745,
+      "efficiency": 1,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675801_c1vp4442t",
+    "timestamp": "2025-11-25T02:44:35.801Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8574068455929055,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8574068455929055,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675813_qfvt4nrbs",
+    "timestamp": "2025-11-25T02:44:35.813Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8729219733517493,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8729219733517493,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675830_09a9crq8m",
+    "timestamp": "2025-11-25T02:44:35.830Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8772934084602095,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8772934084602095,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675844_mecg3dvqu",
+    "timestamp": "2025-11-25T02:44:35.844Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8907162813073941,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8907162813073941,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675858_pveofow5o",
+    "timestamp": "2025-11-25T02:44:35.858Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8908732584614741,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8908732584614741,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675879_kv1u5tu84",
+    "timestamp": "2025-11-25T02:44:35.879Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8813207616196513,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8813207616196513,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675911_n8sgbsooh",
+    "timestamp": "2025-11-25T02:44:35.911Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8689141398029105,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8689141398029105,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675931_b8awo4h2m",
+    "timestamp": "2025-11-25T02:44:35.931Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8834231002759048,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8834231002759048,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675944_0fc451xtq",
+    "timestamp": "2025-11-25T02:44:35.944Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8899476705923108,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8899476705923108,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675962_uk7x92pzt",
+    "timestamp": "2025-11-25T02:44:35.962Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8665938600248978,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8665938600248978,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675977_19bgs32yu",
+    "timestamp": "2025-11-25T02:44:35.977Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8914990913023353,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8914990913023353,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038675988_yqcpuwobm",
+    "timestamp": "2025-11-25T02:44:35.988Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8739857988015661,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8739857988015661,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038676032_2pbz2pd2u",
+    "timestamp": "2025-11-25T02:44:36.032Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8770585712486059,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8770585712486059,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038676049_kdxhzlyly",
+    "timestamp": "2025-11-25T02:44:36.049Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8684833540855467,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8684833540855467,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038676101_3x4knusto",
+    "timestamp": "2025-11-25T02:44:36.101Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8944860659738653,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8944860659738653,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038676129_qma7fvozb",
+    "timestamp": "2025-11-25T02:44:36.129Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8716500519144472,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8716500519144472,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038676146_hbe9tuqyd",
+    "timestamp": "2025-11-25T02:44:36.146Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8519189297247799,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8519189297247799,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  },
+  {
+    "id": "action_1764038676160_mu95v0mq8",
+    "timestamp": "2025-11-25T02:44:36.160Z",
+    "type": "convergence_test",
+    "context": {
+      "mode": "stable"
+    },
+    "parameters": {
+      "value": 42
+    },
+    "outcome": {
+      "success": true,
+      "quality": 0.8901518492548212,
+      "efficiency": 0.9,
+      "executionTime": 100,
+      "errors": []
+    },
+    "metrics": {
+      "success": true,
+      "executionTime": 100,
+      "resourceUsage": {},
+      "quality": 0.8901518492548212,
+      "efficiency": 0.9,
+      "errorRate": 0,
+      "userSatisfaction": 0.5
+    },
+    "metadata": {}
+  }
+]
