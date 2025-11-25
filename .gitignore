@@ -94,3 +94,8 @@ api_keys.json
 credentials.json
 *.pem
 *.key
+
+# Archive files and old builds
+*.zip
+AI-Assistant-*/
+file-inventory-*.csv

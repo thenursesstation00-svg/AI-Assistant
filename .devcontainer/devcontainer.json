@@ -47,7 +47,7 @@
     }
   },
   
-  "postCreateCommand": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ..",
+  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
   
   "postStartCommand": "echo '✅ AI Assistant development environment ready!'",
   
