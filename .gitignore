@@ -100,4 +100,7 @@ credentials.json
 AI-Assistant-*/
 
 # Inventory files
+# Archive files and old builds
+*.zip
+AI-Assistant-*/
 file-inventory-*.csv

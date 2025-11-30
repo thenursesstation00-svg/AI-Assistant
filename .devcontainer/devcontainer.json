@@ -9,6 +9,40 @@
       "upgradePackages": true
     }
   },
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "github.copilot",
+        "github.copilot-chat",
+        "bradlc.vscode-tailwindcss",
+        "dsznajder.es7-react-js-snippets",
+        "christian-kohler.npm-intellisense",
+        "PKief.material-icon-theme",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "javascript.updateImportsOnFileMove.enabled": "always",
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "npm.enableRunFromFolder": true,
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  
   "forwardPorts": [3001, 5173],
   "portsAttributes": {
     "3001": {
@@ -46,5 +80,23 @@
   },
   "remoteEnv": {
     "NODE_ENV": "development"
+  
+  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+  
+  "postStartCommand": "echo '✅ AI Assistant development environment ready!'",
+  
+  "remoteEnv": {
+    "NODE_ENV": "development"
+  },
+  
+  "mounts": [
+    "source=${localWorkspaceFolder}/.env,target=/workspaces/${localWorkspaceFolderBasename}/.env,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/backend/.env,target=/workspaces/${localWorkspaceFolderBasename}/backend/.env,type=bind,consistency=cached"
+  ],
+  
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "32gb"
   }
 }

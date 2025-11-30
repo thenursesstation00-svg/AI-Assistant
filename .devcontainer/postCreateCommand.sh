@@ -27,6 +27,7 @@ if [ ! -f backend/.env ]; then
     echo "⚠️  IMPORTANT: Please update backend/.env with your API keys:"
     echo "   - ANTHROPIC_API_KEY: Get from https://console.anthropic.com/"
     echo "   - BACKEND_API_KEY: Generate a random string for API authentication"
+    echo "   - GITHUB_TOKEN: Your GitHub personal access token"
     echo ""
 fi
 

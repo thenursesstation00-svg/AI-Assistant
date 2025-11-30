@@ -1,14 +1,19 @@
 {
   "name": "ai-assistant-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Professional AI Assistant Desktop Application with Multi-Provider Support",
   "author": "thenursesstation00-svg",
+  "repository": "https://github.com/thenursesstation00-svg/AI-Assistant",
   "homepage": "./",
   "main": "src/main.js",
   "scripts": {
     "start": "electron src/main.js",
     "dev": "electron src/main.js --dev",
     "build": "npm run build:frontend && electron-builder",
+    "build:all": "npm run build:frontend && electron-builder -mwl",
+    "build:win": "npm run build:frontend && electron-builder --win",
+    "build:mac": "npm run build:frontend && electron-builder --mac",
+    "build:linux": "npm run build:frontend && electron-builder --linux",
     "build:ci": "npm run build:frontend && electron-builder --publish never",
     "build:frontend": "cd frontend && npm install && npm run build",
     "test": "cd backend && npm test",
@@ -33,11 +38,10 @@
   "build": {
     "appId": "com.thenursesstation.ai-assistant",
     "productName": "AI Assistant",
+    "npmRebuild": false,
     "files": [
       "src/main.js",
       "src/preload.js",
-      "main.js",
-      "preload.js",
       "backend/**/*",
       {
         "from": "frontend/dist",
@@ -49,15 +53,76 @@
       "buildResources": "build"
     },
     "win": {
-      "target": "nsis"
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AI Assistant"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "Utility",
+      "maintainer": "thenursesstation00-svg",
+      "synopsis": "Professional AI Assistant with Multi-Provider Support",
+      "description": "Desktop AI assistant with support for multiple AI providers, web search, scraping, and workspace features."
+    },
+    "snap": {
+      "confinement": "classic",
+      "grade": "stable"
     },
     "publish": [
       {
-        "provider": "github"
+        "provider": "github",
+        "releaseType": "release"
       }
     ]
   }

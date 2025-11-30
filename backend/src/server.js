@@ -1,4 +1,7 @@
-// backend/src.js (FINAL "Smart Response" Version)
+// Compose prompt endpoint
+const composePromptRoutes = require('./routes/composePrompt');
+app.use('/api/v1/compose_prompt', requireAPIKey, composePromptRoutes);
+// backend/src/server.js - AI Assistant Backend Server
 
 // Load environment variables first
 require('dotenv').config();
@@ -22,8 +25,6 @@ initializeDatabase();
 // Initialize AI provider registry
 const providerRegistry = require('./services/ai/registry');
 providerRegistry.initialize();
-// Load environment variables from .env file
-require('dotenv').config();
 
 function parseKeys(){
   // support BACKEND_API_KEYS as JSON string mapping key->role, e.g. '{"key1":"admin"}'
@@ -196,7 +197,7 @@ app.get('/health', (req, res) => res.json({status:'ok', uptime: process.uptime()
 
 const port = process.env.PORT || 3001;
 // Listen on all interfaces to support both IPv4 and IPv6
-app.listen(port, (err) => {
+const server = app.listen(port, (err) => {
   if (err) {
     console.error('Failed to start backend server:', err);
     process.exit(1);
@@ -205,11 +206,47 @@ app.listen(port, (err) => {
   console.log(`Access via: http://127.0.0.1:${port} or http://localhost:${port}`);
 });
 
+// Global error handlers
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  // Don't exit, just log
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit, just log
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, closing server gracefully');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, closing server gracefully');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
 try{
   startAvWorker({ metaRoot: require('path').resolve(__dirname, '../../uploads/meta'), intervalMs: parseInt(process.env.AV_SCAN_INTERVAL_MS || '15000', 10) });
 }catch(e){ console.error('failed to start AV worker', e && e.message); }
 
-// Keep the process alive and provide status updates
+// Keep the process alive with health monitoring
+let heartbeatCount = 0;
 setInterval(() => {
-  // This keeps the event loop active
+  heartbeatCount++;
+  if (heartbeatCount % 12 === 0) { // Every 6 minutes (30s * 12)
+    console.log(`✓ Server heartbeat: ${heartbeatCount * 30}s uptime, ${Object.keys(require.cache).length} modules loaded`);
+  }
 }, 30000);
+
+console.log('✅ Server initialization complete');
+
+// Export server for testing
+module.exports = server;
