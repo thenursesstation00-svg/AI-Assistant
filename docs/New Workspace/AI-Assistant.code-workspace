@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../../../../Downloads/AI-Assistant-v1.0.0 (2)/AI-Assistant-v1.0.0"
+		},
+		{
+			"path": "../../New WorkSpace"
+		}
+	],
+	"settings": {
+		"terminal.integrated.suggest.enabled": true,
+		"powershell.codeFormatting.useConstantStrings": true,
+		"java.codeGeneration.toString.skipNullValues": true,
+		"github.copilot.advanced": {
+			"mcp": {
+				"enabled": true,
+				"configPath": ".mcp/config.json"
+			}
+		}
+	}
+}

@@ -1,11 +1,14 @@
 // ChatWindow.jsx - AI chat with file upload support
 import React, { useState, useRef, useEffect } from 'react';
+import { buildCfeSnapshotFromWindowManager } from '../utils/cfe';
+import { requestSystemPrompt } from '../api/personality';
 import ReactMarkdown from 'react-markdown';
 import FileUpload from '../components/FileUpload';
 import FileChip from '../components/FileChip';
 import { uploadFiles, deleteFile, sendMessage } from '../api';
 
-export default function ChatWindow() {
+// Accept uiState and callLLM as props for CFE/context-aware prompt
+export default function ChatWindow({ uiState, callLLM }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -46,17 +49,35 @@ export default function ChatWindow() {
     setIsLoading(true);
 
     try {
-      const response = await sendMessage({
-        messages: [...messages, userMessage].map(m => ({
-          role: m.role,
-          content: m.content
-        })),
-        fileIds: currentFiles.map(f => f.id)
-      });
+      // Build CFE snapshot from uiState
+      const cfe = buildCfeSnapshotFromWindowManager(uiState || {});
+      // Get system prompt from backend
+      const systemPrompt = (await requestSystemPrompt(cfe))
+        || 'You are a helpful AI assistant integrated into a multi-window developer OS.';
+
+      // Compose LLM messages
+      const llmMessages = [
+        { role: 'system', content: systemPrompt },
+        ...messages,
+        userMessage,
+      ];
+
+      // Use callLLM if provided, else fallback to sendMessage
+      let replyContent = null;
+      if (callLLM) {
+        replyContent = await callLLM(llmMessages);
+      } else {
+        // Fallback: use sendMessage API (legacy)
+        const response = await sendMessage({
+          messages: llmMessages.map(m => ({ role: m.role, content: m.content })),
+          fileIds: currentFiles.map(f => f.id)
+        });
+        replyContent = response.content;
+      }
 
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: response.content,
+        content: replyContent,
         timestamp: new Date().toISOString()
       }]);
     } catch (error) {

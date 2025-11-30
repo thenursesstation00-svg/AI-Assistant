@@ -1,3 +1,6 @@
+// Compose prompt endpoint
+const composePromptRoutes = require('./routes/composePrompt');
+app.use('/api/v1/compose_prompt', requireAPIKey, composePromptRoutes);
 // backend/src/server.js - AI Assistant Backend Server
 
 // Load environment variables first
