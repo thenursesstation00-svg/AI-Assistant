@@ -1,6 +1,6 @@
 const https = require('https');
 
-const key = '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';
+const key = 'sk-ant-api03-your-key-here';
 
 const data = JSON.stringify({
     model: 'claude-sonnet-4-20250514',

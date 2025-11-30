@@ -1,9 +1,9 @@
 const https = require('https');
 
 const keys = [
-    "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",
-    "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",
-    "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"
+    "sk-ant-api03-your-key-here",
+    "sk-ant-api03-your-key-here",
+    "sk-ant-api03-your-key-here"
 ];
 
 const testKey = (key, index) => {
