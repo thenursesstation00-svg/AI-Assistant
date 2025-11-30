@@ -4,18 +4,21 @@ FROM node:20-slim
 # Install curl for health checks
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Set working directory to backend
 WORKDIR /app
 
-# Copy backend package files
-COPY backend/package*.json ./backend/
+# Copy backend package files first (for better caching)
+COPY backend/package*.json ./
 
 # Install backend dependencies
-WORKDIR /app/backend
-RUN npm ci
+RUN npm ci --only=production
 
-# Copy backend source
-COPY backend/ ./backend/
+# Copy backend source code
+COPY backend/ ./
+
+# Create non-root user for security
+RUN useradd -r -s /bin/false appuser && chown -R appuser:appuser /app
+USER appuser
 
 # Expose port
 EXPOSE 3001
