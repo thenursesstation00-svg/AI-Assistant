@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Professional AI Assistant Desktop Application with Multi-Provider Support",
   "author": "thenursesstation00-svg",
+  "repository": "https://github.com/thenursesstation00-svg/AI-Assistant",
   "homepage": "./",
   "main": "src/main.js",
   "scripts": {

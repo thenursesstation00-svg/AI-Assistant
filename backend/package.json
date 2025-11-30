@@ -1,6 +1,7 @@
 {
   "name": "ai-assistant-backend",
   "version": "1.0.1",
+  "repository": "https://github.com/thenursesstation00-svg/AI-Assistant",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
