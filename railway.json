@@ -1,10 +1,9 @@
 {
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "cd frontend && npm install && npm run build"
+    "builder": "DOCKERFILE"
   },
   "deploy": {
-    "startCommand": "cd backend && npm start",
+    "startCommand": "npm start",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
