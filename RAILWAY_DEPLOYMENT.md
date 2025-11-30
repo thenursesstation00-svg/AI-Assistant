@@ -54,12 +54,31 @@ CORS_ORIGIN=https://your-app-name.up.railway.app
 2. Visit the provided Railway URL
 3. Test the `/health` endpoint: `https://your-app-name.up.railway.app/health`
 
-### Step 5: Update Frontend (Optional)
-If you want to deploy the frontend separately or update CORS:
+### Step 5: Configure Frontend for Railway API
+After Railway deployment, configure the frontend to use your Railway backend:
 
-1. In Railway dashboard, note your backend URL
-2. Update frontend's API calls to point to Railway URL
-3. Or set `CORS_ORIGIN` to your Railway domain
+1. **Get your Railway URL** from Railway dashboard (e.g., `https://your-app-name.up.railway.app`)
+
+2. **Update frontend environment**:
+   ```bash
+   # Edit the production environment file
+   notepad frontend\.env.production
+   ```
+
+3. **Set the API URL**:
+   ```
+   VITE_API_URL=https://your-actual-railway-app-name.up.railway.app
+   ```
+
+4. **For CORS**, update Railway environment variable:
+   ```
+   CORS_ORIGIN=https://your-actual-railway-app-name.up.railway.app
+   ```
+
+### Alternative Deployment Options:
+- **Deploy frontend separately** to Vercel/Netlify with the Railway API URL
+- **Use environment variables** in your frontend hosting platform
+- **Update CORS_ORIGIN** in Railway to match your frontend domain
 
 ## 🔧 Troubleshooting
 
