@@ -80,6 +80,18 @@ After Railway deployment, configure the frontend to use your Railway backend:
 - **Use environment variables** in your frontend hosting platform
 - **Update CORS_ORIGIN** in Railway to match your frontend domain
 
+### Frontend Deployment Scripts:
+Use the provided PowerShell scripts for easy deployment:
+```powershell
+# For Vercel (Recommended)
+.\deploy-to-vercel.ps1 -RailwayUrl "https://your-railway-app.up.railway.app"
+
+# For Netlify
+.\deploy-to-netlify.ps1 -RailwayUrl "https://your-railway-app.up.railway.app"
+```
+
+See `FRONTEND_DEPLOYMENT.md` for detailed instructions.
+
 ## 🔧 Troubleshooting
 
 ### Build Failures
