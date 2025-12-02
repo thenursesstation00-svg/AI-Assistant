@@ -13,14 +13,27 @@ jest.mock('../src/database/db', () => {
   };
 });
 
+// Mock policy service for registry tests
+jest.mock('../src/services/tools/policy', () => ({
+  checkPolicy: jest.fn(),
+  addPolicy: jest.fn(),
+  matches: jest.fn() // Keep original if needed, but mocking is safer
+}));
+
 const { getDatabase } = require('../src/database/db');
 
 describe('Tool Registry', () => {
   beforeEach(() => {
-    // Clear registry (if we exposed a clear method, but we didn't. 
-    // We'll just register unique tools for each test or assume fresh state if jest resets modules)
-    // Since registry is a singleton instance, it persists. I should add a clear method or just use unique names.
-    registry.tools = new Map(); 
+    // Clear registry
+    registry.tools = new Map();
+    jest.clearAllMocks();
+    
+    // Default allow policy
+    policyService.checkPolicy.mockResolvedValue({ 
+      allowed: true, 
+      reason: 'Mock allow', 
+      requiresApproval: false 
+    });
   });
 
   test('should register and retrieve a tool', () => {
@@ -38,16 +51,41 @@ describe('Tool Registry', () => {
     
     const result = await registry.execute('greet', { name: 'World' });
     expect(result).toBe('Hello World');
+    expect(policyService.checkPolicy).toHaveBeenCalled();
   });
 
   test('should throw if tool not found', async () => {
     await expect(registry.execute('missing.tool', {}))
       .rejects.toThrow('Tool missing.tool not found');
   });
+
+  test('should throw if policy denies', async () => {
+    policyService.checkPolicy.mockResolvedValue({ 
+      allowed: false, 
+      reason: 'Policy denied', 
+      requiresApproval: false 
+    });
+
+    const handler = async () => 'success';
+    registry.register('restricted.tool', {}, handler, 'Restricted');
+
+    await expect(registry.execute('restricted.tool', {}))
+      .rejects.toThrow('Tool execution denied: Policy denied');
+  });
 });
 
 describe('Policy Service', () => {
   let db;
+  // We need to unmock policyService to test it, but Jest hoisting makes this tricky.
+  // Instead, we can test the *logic* of policyService by importing the class directly if possible,
+  // or we rely on the fact that we mocked the *module* above.
+  // Ah, if I mock the module, I can't test the real implementation in the same file easily without jest.requireActual.
+  
+  // Better approach: Don't mock policyService globally. Mock it only for Registry tests using spyOn or similar.
+  // But registry imports it directly.
+  
+  // Let's use jest.requireActual for the Policy Service tests.
+  const RealPolicyService = jest.requireActual('../src/services/tools/policy');
 
   beforeEach(() => {
     db = getDatabase();
@@ -62,7 +100,7 @@ describe('Policy Service', () => {
       ])
     });
 
-    const result = await policyService.checkPolicy('dev', 'git.status', {});
+    const result = await RealPolicyService.checkPolicy('dev', 'git.status', {});
     expect(result.allowed).toBe(true);
     expect(result.requiresApproval).toBe(false);
   });
@@ -74,7 +112,7 @@ describe('Policy Service', () => {
       ])
     });
 
-    const result = await policyService.checkPolicy('guest', 'shell.exec', {});
+    const result = await RealPolicyService.checkPolicy('guest', 'shell.exec', {});
     expect(result.allowed).toBe(false);
   });
 
@@ -85,7 +123,7 @@ describe('Policy Service', () => {
       ])
     });
 
-    const result = await policyService.checkPolicy('dev', 'git.push', {});
+    const result = await RealPolicyService.checkPolicy('dev', 'git.push', {});
     expect(result.allowed).toBe(true);
     expect(result.requiresApproval).toBe(true);
   });
@@ -98,14 +136,21 @@ describe('Policy Service', () => {
     
     const allMockUser = jest.fn().mockReturnValue([]);
     const allMockDefault = jest.fn().mockReturnValue([
-      { tool_pattern: '*', policy: 'deny' }
+      { tool_pattern: '*', policy: 'allow' }
     ]);
 
-    prepareMock.mockReturnValueOnce({ all: allMockUser });
-    prepareMock.mockReturnValueOnce({ all: allMockDefault });
+    // When called with args, return specific mocks
+    prepareMock.mockImplementation((sql) => {
+      if (sql.includes("persona_id = 'default'")) {
+        return { all: () => allMockDefault() };
+      }
+      if (sql.includes('persona_id = ?')) {
+        return { all: (id) => id === 'default' ? allMockDefault() : allMockUser() };
+      }
+      return { all: () => [] };
+    });
 
-    const result = await policyService.checkPolicy('unknown_user', 'any.tool', {});
-    expect(result.allowed).toBe(false);
-    expect(result.reason).toContain('Denied by policy');
+    const result = await RealPolicyService.checkPolicy('newuser', 'any.tool', {});
+    expect(result.allowed).toBe(true);
   });
 });

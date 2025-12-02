@@ -100,6 +100,16 @@ function migrate() {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS persona_policies (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      persona_id TEXT NOT NULL,
+      tool_pattern TEXT NOT NULL,
+      policy TEXT NOT NULL CHECK(policy IN ('allow', 'deny', 'ask')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(persona_id, tool_pattern)
+    );
+
     CREATE TABLE IF NOT EXISTS ui_preferences (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER DEFAULT 1,

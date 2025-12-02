@@ -207,6 +207,10 @@ app.use('/api/v1', requireAPIKey, systemRoutes);
 app.use('/api/settings', requireAPIKey, settingsRoutes);
 app.use('/api/git', requireAPIKey, gitRoutes);
 app.use('/api/keypool', requireAPIKey, require('./routes/keypool'));
+app.use('/api/system-stats', requireAPIKey, require('./routes/systemStats'));
+app.use('/api/terminal', requireAPIKey, require('./routes/terminal'));
+app.use('/api/tools', requireAPIKey, require('./routes/tools'));
+app.use('/api/agents', requireAPIKey, require('./routes/agents_v2'));
 
 app.get('/health', (req, res) => {
   console.log('Health request received');

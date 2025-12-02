@@ -4,6 +4,8 @@ const { z } = require('zod'); // We'll need zod or similar for schema validation
 // Actually, the roadmap says "Validate tool arguments via JSON schema".
 // I'll assume standard JSON schema and maybe use 'ajv' if available, or just simple validation for now.
 
+const policyService = require('./policy');
+
 class ToolRegistry {
   constructor() {
     this.tools = new Map();
@@ -49,10 +51,27 @@ class ToolRegistry {
    * @param {object} args 
    * @param {object} context - Execution context (user, persona, etc.)
    */
-  async execute(name, args, context) {
+  async execute(name, args, context = {}) {
     const tool = this.tools.get(name);
     if (!tool) {
       throw new Error(`Tool ${name} not found`);
+    }
+
+    // Policy Check
+    const personaId = context.personaId || 'default';
+    const policyResult = await policyService.checkPolicy(personaId, name, args);
+
+    if (!policyResult.allowed) {
+      throw new Error(`Tool execution denied: ${policyResult.reason}`);
+    }
+
+    if (policyResult.requiresApproval) {
+      // In a real system, this would trigger an approval workflow.
+      // For now, we'll throw a specific error that the UI can catch to show a prompt.
+      // Or we check if approval was provided in context.
+      if (!context.approvalGranted) {
+        throw new Error(`Tool execution requires approval: ${policyResult.reason}`);
+      }
     }
 
     // TODO: Validate args against tool.schema here
