@@ -1,8 +1,6 @@
-// Compose prompt endpoint
-const composePromptRoutes = require('./routes/composePrompt');
-app.use('/api/v1/compose_prompt', requireAPIKey, composePromptRoutes);
 // backend/src/server.js - AI Assistant Backend Server
 
+console.log('[DEBUG] Starting backend/src/server.js');
 // Load environment variables first
 require('dotenv').config();
 
@@ -13,18 +11,28 @@ validateEnvironment();
 // Run database migrations
 const { migrate } = require('./database/migrate');
 try {
+  console.log('[DEBUG] Running migrate()');
   migrate();
+  console.log('[DEBUG] migrate() complete');
 } catch (error) {
   console.error('Migration error:', error.message);
 }
 
 // Initialize database connection
 const { initializeDatabase } = require('./database/db');
+console.log('[DEBUG] Calling initializeDatabase()');
 initializeDatabase();
+console.log('[DEBUG] initializeDatabase() complete');
 
 // Initialize AI provider registry
 const providerRegistry = require('./services/ai/registry');
-providerRegistry.initialize();
+try {
+  console.log('[DEBUG] Initializing provider registry');
+  providerRegistry.initialize();
+  console.log('[DEBUG] Provider registry initialized');
+} catch (err) {
+  console.error('Provider registry initialization error:', err);
+}
 
 function parseKeys(){
   // support BACKEND_API_KEYS as JSON string mapping key->role, e.g. '{"key1":"admin"}'
@@ -114,6 +122,7 @@ const streamingRoutes = require('./routes/streaming');
 const workspaceRoutes = require('./routes/workspace');
 const scrapeRoutes = require('./routes/scrape');
 const aiIntelligenceRoutes = require('./routes/aiIntelligence');
+const composePromptRoutes = require('./routes/composePrompt');
 const { startAvWorker } = require('./workers/avWorker');
 
 const app = express();
@@ -121,13 +130,9 @@ app.use(helmet());
 app.use(express.json());
 
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'file://',
-    /^file:\/\//
-  ],
+  origin: '*',
   credentials: true
-} ));
+ }));
 
 const limiter = rateLimit({
   windowMs: (parseInt(process.env.RATE_LIMIT_WINDOW || '15')) * 60 * 1000,
@@ -172,6 +177,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Production routes
+app.use('/api/v1/compose_prompt', requireAPIKey, composePromptRoutes);
 app.use('/api/chat', requireAPIKey, chatRoutes);
 app.use('/api/chat', requireAPIKey, chatFilesRoutes); // File upload for chat
 app.use('/api/providers', requireAPIKey, providersRoutes);
@@ -193,7 +199,16 @@ app.use('/api/scrape', requireAPIKey, scrapeRoutes);
 app.use('/api/ai', requireAPIKey, aiIntelligenceRoutes);
 app.use('/api/keypool', requireAPIKey, require('./routes/keypool'));
 
-app.get('/health', (req, res) => res.json({status:'ok', uptime: process.uptime()}));
+app.get('/health', (req, res) => {
+  console.log('Health request received');
+  try {
+    res.send('ok');
+    console.log('Health response sent');
+  } catch (err) {
+    console.error('Health error:', err);
+    res.status(500).send('error');
+  }
+});
 
 const port = process.env.PORT || 3001;
 // Listen on all interfaces to support both IPv4 and IPv6
@@ -202,7 +217,7 @@ const server = app.listen(port, (err) => {
     console.error('Failed to start backend server:', err);
     process.exit(1);
   }
-  console.log(`Backend listening on port ${port}`);
+  console.log(`[DEBUG] Backend listening on port ${port}`);
   console.log(`Access via: http://127.0.0.1:${port} or http://localhost:${port}`);
 });
 
@@ -218,23 +233,25 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, closing server gracefully');
+  console.log('[DEBUG] SIGTERM received, closing server gracefully');
   server.close(() => {
-    console.log('Server closed');
+    console.log('[DEBUG] Server closed');
     process.exit(0);
   });
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT received, closing server gracefully');
+  console.log('[DEBUG] SIGINT received, closing server gracefully');
   server.close(() => {
-    console.log('Server closed');
+    console.log('[DEBUG] Server closed');
     process.exit(0);
   });
 });
 
 try{
+  console.log('[DEBUG] Starting AV worker');
   startAvWorker({ metaRoot: require('path').resolve(__dirname, '../../uploads/meta'), intervalMs: parseInt(process.env.AV_SCAN_INTERVAL_MS || '15000', 10) });
+  console.log('[DEBUG] AV worker started');
 }catch(e){ console.error('failed to start AV worker', e && e.message); }
 
 // Keep the process alive with health monitoring
@@ -246,7 +263,7 @@ setInterval(() => {
   }
 }, 30000);
 
-console.log('✅ Server initialization complete');
+console.log('[DEBUG] ✅ Server initialization complete');
 
 // Export server for testing
 module.exports = server;

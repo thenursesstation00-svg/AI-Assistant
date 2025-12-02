@@ -52,15 +52,15 @@ function closeDatabase() {
 }
 
 // Graceful shutdown
-process.on('SIGINT', () => {
-  closeDatabase();
-  process.exit(0);
-});
+// process.on('SIGINT', () => {
+//   closeDatabase();
+//   process.exit(0);
+// });
 
-process.on('SIGTERM', () => {
-  closeDatabase();
-  process.exit(0);
-});
+// process.on('SIGTERM', () => {
+//   closeDatabase();
+//   process.exit(0);
+// });
 
 module.exports = {
   getDatabase,
