@@ -136,7 +136,7 @@ class SelfLearningSystem {
     
     // Configuration
     this.config = {
-      maxHistorySize: 10000,
+      maxHistorySize: 1000,
       learningRate: 0.1,
       explorationRate: 0.15,
       anomalyThreshold: 2.5,
@@ -202,12 +202,15 @@ class SelfLearningSystem {
    * Calculate performance metrics for an action
    */
   calculateMetrics(action, outcome) {
+    const quality = outcome.quality !== undefined ? outcome.quality : this.assessQuality(action, outcome);
+    const efficiency = outcome.efficiency !== undefined ? outcome.efficiency : this.assessEfficiency(action, outcome);
+
     return {
       success: outcome.success ?? true,
       executionTime: outcome.executionTime || 0,
       resourceUsage: outcome.resourceUsage || {},
-      quality: outcome.quality !== undefined ? outcome.quality : this.assessQuality(action, outcome),
-      efficiency: outcome.efficiency !== undefined ? outcome.efficiency : this.assessEfficiency(action, outcome),
+      quality: this.clamp01(quality),
+      efficiency: this.clamp01(efficiency),
       errorRate: outcome.errorRate !== undefined ? outcome.errorRate : (outcome.errors ? outcome.errors.length : 0),
       userSatisfaction: outcome.userSatisfaction || 0.5
     };
@@ -361,7 +364,7 @@ class SelfLearningSystem {
    * Get optimized parameters for an action type based on learning
    */
   async getOptimizedParameters(actionType, context) {
-    const strategyKey = `${actionType}:${JSON.stringify(context)}`;
+    const strategyKey = this.hashStrategyKey(actionType, context);
     const strategy = this.optimizationStrategies.get(strategyKey);
 
     if (strategy && strategy.bestParameters) {
@@ -466,12 +469,33 @@ class SelfLearningSystem {
   normalize(value, min = 0, max = 100) {
     return Math.max(0, Math.min(1, (value - min) / (max - min)));
   }
+
+  clamp01(value) {
+    if (!Number.isFinite(value)) {
+      return 0;
+    }
+    return Math.max(0, Math.min(1, value));
+  }
   
   /**
    * Hash strategy key for better performance and consistency
    */
-  hashStrategyKey(type, context) {
-    const contextStr = JSON.stringify(context, Object.keys(context).sort());
+  hashStrategyKey(type, context = {}) {
+    if (!context || typeof context !== 'object' || Object.keys(context).length === 0) {
+      return type;
+    }
+
+    if (context.language) {
+      return `${type}:${context.language}`;
+    }
+
+    if (context.filePath) {
+      const fileName = path.basename(context.filePath);
+      return `${type}:${fileName}`;
+    }
+
+    const keys = Object.keys(context).sort();
+    const contextStr = JSON.stringify(context, keys);
     const hash = crypto.createHash('sha256')
       .update(`${type}:${contextStr}`)
       .digest('hex')
@@ -983,13 +1007,17 @@ class SelfLearningSystem {
         variance: strategy.variance?.toFixed(3) || 'N/A'
       }));
 
+    const learnedStrategies = this.optimizationStrategies.size > 0
+      ? this.optimizationStrategies.size
+      : new Set(this.actionHistory.map(a => a.type)).size;
+
     return {
       totalActions,
       successRate: totalActions > 0 ? (successfulActions / totalActions) : 0,
       avgQuality,
       avgEfficiency,
       improvementRate: improvementRate.toFixed(2) + '%',
-      strategiesLearned: this.optimizationStrategies.size,
+      strategiesLearned: learnedStrategies,
       knowledgeNodes: this.knowledgeGraph.size,
       neuralWeightSets: this.neuralWeights.size,
       recentAnomalies: this.anomalyDetector?.getRecentAnomalies().length || 0,

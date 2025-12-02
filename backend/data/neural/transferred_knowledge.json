@@ -1,6 +1,78 @@
 {
-  "lastUpdate": "2025-11-24T21:26:35.903Z",
+  "lastUpdate": "2025-12-02T06:40:51.932Z",
   "patterns": [
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
+    {
+      "type": "function",
+      "pattern": "function test()"
+    },
+    {
+      "type": "class",
+      "pattern": "class User"
+    },
     {
       "type": "function",
       "pattern": "function test()"

@@ -4,16 +4,27 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
-import { getBackendApiKeyAsync } from '../config';
+import { API_URL, getBackendApiKeyAsync } from '../config';
+import { buildCfeSnapshotFromWindowManager } from '../utils/cfe';
 import '@xterm/xterm/css/xterm.css';
 
-export default function TerminalPanel() {
+export default function TerminalPanel({ uiState, mode = 'shell' }) {
   const terminalRef = useRef(null);
   const xtermRef = useRef(null);
   const fitAddonRef = useRef(null);
-  const [currentCommand, setCurrentCommand] = useState('');
   const [commandHistory, setCommandHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [commandMode, setCommandMode] = useState(mode);
+  const commandHistoryRef = useRef(commandHistory);
+  const historyIndexRef = useRef(historyIndex);
+
+  useEffect(() => {
+    commandHistoryRef.current = commandHistory;
+  }, [commandHistory]);
+
+  useEffect(() => {
+    historyIndexRef.current = historyIndex;
+  }, [historyIndex]);
 
   useEffect(() => {
     if (!terminalRef.current || xtermRef.current) return;
@@ -68,57 +79,52 @@ export default function TerminalPanel() {
 
       if (code === 13) { // Enter
         term.write('\r\n');
-        if (currentLine.trim()) {
-          executeCommand(currentLine.trim(), term);
-          setCommandHistory(prev => [...prev, currentLine.trim()]);
-          setHistoryIndex(-1);
+        const trimmed = currentLine.trim();
+        if (trimmed) {
+          handleCommand(trimmed, term);
         } else {
           writePrompt(term);
         }
         currentLine = '';
-        setCurrentCommand('');
       } else if (code === 127) { // Backspace
         if (currentLine.length > 0) {
           currentLine = currentLine.slice(0, -1);
           term.write('\b \b');
-          setCurrentCommand(currentLine);
         }
       } else if (code === 27) { // Escape sequences (arrow keys)
         // Handle arrow keys for history navigation
         if (data === '\x1b[A') { // Up arrow
-          if (historyIndex < commandHistory.length - 1) {
-            const newIndex = historyIndex + 1;
+          if (historyIndexRef.current < commandHistoryRef.current.length - 1) {
+            const newIndex = historyIndexRef.current + 1;
             setHistoryIndex(newIndex);
-            const histCmd = commandHistory[commandHistory.length - 1 - newIndex];
-            // Clear current line
+            historyIndexRef.current = newIndex;
+            const histCmd = commandHistoryRef.current[commandHistoryRef.current.length - 1 - newIndex];
             term.write('\r\x1b[K');
             writePrompt(term);
             term.write(histCmd);
             currentLine = histCmd;
-            setCurrentCommand(currentLine);
           }
         } else if (data === '\x1b[B') { // Down arrow
-          if (historyIndex > 0) {
-            const newIndex = historyIndex - 1;
+          if (historyIndexRef.current > 0) {
+            const newIndex = historyIndexRef.current - 1;
             setHistoryIndex(newIndex);
-            const histCmd = commandHistory[commandHistory.length - 1 - newIndex];
+            historyIndexRef.current = newIndex;
+            const histCmd = commandHistoryRef.current[commandHistoryRef.current.length - 1 - newIndex];
             term.write('\r\x1b[K');
             writePrompt(term);
             term.write(histCmd);
             currentLine = histCmd;
-            setCurrentCommand(currentLine);
-          } else if (historyIndex === 0) {
+          } else if (historyIndexRef.current === 0) {
             setHistoryIndex(-1);
+            historyIndexRef.current = -1;
             term.write('\r\x1b[K');
             writePrompt(term);
             currentLine = '';
-            setCurrentCommand('');
           }
         }
       } else if (code >= 32 && code <= 126) { // Printable characters
         currentLine += data;
         term.write(data);
-        setCurrentCommand(currentLine);
       }
     });
 
@@ -135,13 +141,84 @@ export default function TerminalPanel() {
   }, []);
 
   const writePrompt = (term) => {
-    term.write('\r\n\x1b[1;36m❯\x1b[0m ');
+    const modeLabel = commandMode === 'shell' ? 'sh' : 'ai';
+    term.write(`\r\n\x1b[1;36m${modeLabel}❯\x1b[0m `);
   };
 
-  const executeCommand = async (command, term) => {
+  const handleCommand = (input, term) => {
+    setCommandHistory(prev => {
+      const updated = [...prev, input];
+      commandHistoryRef.current = updated;
+      return updated;
+    });
+    setHistoryIndex(-1);
+    historyIndexRef.current = -1;
+
+    if (commandMode === 'shell') {
+      executeShellCommand(input, term);
+    } else {
+      enqueueAiCommand(input, term);
+    }
+  };
+
+  const enqueueAiCommand = async (prompt, term) => {
+    term.writeln('\x1b[1;35m[AI] Planning command...\x1b[0m');
     try {
       const apiKey = await getBackendApiKeyAsync();
-      const response = await fetch('http://127.0.0.1:3001/api/command', {
+      const context = buildCfeSnapshotFromWindowManager(uiState || {});
+      const response = await fetch(`${API_URL}/api/ai/terminal/agent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey || ''
+        },
+        body: JSON.stringify({ prompt, autoExecute: true, context })
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || payload.success === false) {
+        term.writeln(`\x1b[1;31mAI mode error: ${payload.error || response.statusText}\x1b[0m`);
+        writePrompt(term);
+        return;
+      }
+
+      const { plan, execution } = payload;
+
+      if (!plan || !plan.command) {
+        term.writeln('\x1b[1;33mAI could not generate a command.\x1b[0m');
+        writePrompt(term);
+        return;
+      }
+
+      const confidenceLabel = plan.confidence ? `${Math.round(plan.confidence * 100)}%` : 'n/a';
+      term.writeln(`\x1b[1;35m[AI ${plan.source || 'heuristic'} | ${confidenceLabel}] ${plan.command}\x1b[0m`);
+      if (plan.explanation) {
+        term.writeln(`\x1b[90m${plan.explanation}\x1b[0m`);
+      }
+
+      if (plan.blocked || execution?.blocked) {
+        term.writeln('\x1b[1;31mCommand blocked by safety policies.\x1b[0m');
+      } else if (execution?.ran) {
+        const lines = (execution.output || '').split('\n');
+        lines.forEach(line => term.writeln(line));
+        if (execution.error) {
+          term.writeln(`\x1b[1;33m${execution.error}\x1b[0m`);
+        }
+      } else {
+        term.writeln(`\x1b[1;33mExecution skipped. Run manually:\x1b[0m ${plan.command}`);
+      }
+    } catch (error) {
+      term.writeln(`\x1b[1;31mFailed to run AI workflow: ${error.message}\x1b[0m`);
+    }
+
+    writePrompt(term);
+  };
+
+  const executeShellCommand = async (command, term) => {
+    try {
+      const apiKey = await getBackendApiKeyAsync();
+      const response = await fetch(`${API_URL}/api/command`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,37 +248,73 @@ export default function TerminalPanel() {
   const clearTerminal = () => {
     if (xtermRef.current) {
       xtermRef.current.clear();
+      xtermRef.current.writeln('\x1b[1;32mAI Developer Terminal\x1b[0m');
       writePrompt(xtermRef.current);
     }
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div className="panel-header" style={{
-        padding: '8px 12px',
-        backgroundColor: '#2d2d30',
-        borderBottom: '1px solid #3e3e42',
-        cursor: 'move',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <span style={{ fontSize: '13px', fontWeight: '500', color: '#cccccc' }}>⚡ Terminal</span>
-        
-        <button
-          onClick={clearTerminal}
-          style={{
-            padding: '4px 10px',
-            fontSize: '11px',
-            backgroundColor: '#3e3e42',
-            color: '#cccccc',
-            border: 'none',
-            borderRadius: '3px',
-            cursor: 'pointer'
-          }}
-        >
-          Clear
-        </button>
+      <div
+        className="panel-header"
+        style={{
+          padding: '8px 12px',
+          backgroundColor: '#2d2d30',
+          borderBottom: '1px solid #3e3e42',
+          cursor: 'move',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
+      >
+        <span style={{ fontSize: '13px', fontWeight: '500', color: '#cccccc' }}>⚡ Developer Terminal</span>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ fontSize: 11, color: '#ccc', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span>Mode:</span>
+            <button
+              onClick={() => setCommandMode('shell')}
+              style={{
+                padding: '2px 8px',
+                fontSize: 11,
+                backgroundColor: commandMode === 'shell' ? '#007acc' : '#3e3e42',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 3,
+                cursor: 'pointer'
+              }}
+            >
+              Shell
+            </button>
+            <button
+              onClick={() => setCommandMode('ai')}
+              style={{
+                padding: '2px 8px',
+                fontSize: 11,
+                backgroundColor: commandMode === 'ai' ? '#007acc' : '#3e3e42',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 3,
+                cursor: 'pointer'
+              }}
+            >
+              AI
+            </button>
+          </div>
+          <button
+            onClick={clearTerminal}
+            style={{
+              padding: '4px 10px',
+              fontSize: '11px',
+              backgroundColor: '#3e3e42',
+              color: '#cccccc',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer'
+            }}
+          >
+            Clear
+          </button>
+        </div>
       </div>
 
       <div 

@@ -4,6 +4,7 @@ const router = express.Router();
 const { exec } = require('child_process');
 const util = require('util');
 const execPromise = util.promisify(exec);
+const { isCommandDangerous } = require('../utils/commandSafety');
 
 // POST /api/command - Execute a command
 router.post('/', async (req, res) => {
@@ -15,16 +16,7 @@ router.post('/', async (req, res) => {
     }
 
     // Security: Block dangerous commands
-    const dangerousPatterns = [
-      /rm\s+-rf\s+\//, // rm -rf /
-      /format\s+c:/i,  // format c:
-      /del\s+\/s\s+\/q/i, // del /s /q
-      /shutdown/i,
-      /restart/i,
-      /mkfs/i
-    ];
-
-    if (dangerousPatterns.some(pattern => pattern.test(command))) {
+    if (isCommandDangerous(command)) {
       return res.status(403).json({ 
         error: 'Command blocked for security reasons',
         output: 'This command could be dangerous and has been blocked.'

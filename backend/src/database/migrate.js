@@ -187,6 +187,34 @@ function migrate() {
       ('default', '{"panels":[{"id":"chat","x":0,"y":0,"w":8,"h":12},{"id":"settings","x":8,"y":0,"w":4,"h":6}]}', 1);
   `);
 
+  // Migration 5: Add Tooling & Safety tables (Phase P1)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS persona_policies (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      persona_id TEXT NOT NULL,
+      tool_pattern TEXT NOT NULL,
+      policy TEXT NOT NULL CHECK(policy IN ('allow', 'deny', 'ask')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(persona_id, tool_pattern)
+    );
+  `);
+  
+  // Insert default policies if table is empty
+  const policyCount = db.prepare('SELECT count(*) as count FROM persona_policies').get().count;
+  if (policyCount === 0) {
+    db.exec(`
+      INSERT INTO persona_policies (persona_id, tool_pattern, policy) VALUES
+      ('default', 'git.*', 'ask'),
+      ('default', 'shell.*', 'ask'),
+      ('default', 'system.*', 'allow'),
+      ('developer', 'git.*', 'allow'),
+      ('developer', 'shell.exec', 'ask'),
+      ('developer', 'shell.read', 'allow');
+    `);
+    console.log('  ✅ Default persona policies inserted');
+  }
+
   console.log('  ✅ Default data inserted');
 
   db.close();

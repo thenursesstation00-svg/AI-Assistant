@@ -63,23 +63,18 @@ class NeuralNetworkSystem {
     }
 
     try {
-      // Prepare input
       const input = this.prepareCodeInput(code, language);
-
-      // Get embedding from model
       const embedding = await this.queryModel('codebert', {
         inputs: input,
         options: { wait_for_model: true }
       });
-
-      // Cache result
       this.cacheEmbedding(cacheKey, embedding);
-
       return embedding;
     } catch (error) {
-      console.error('[Neural Network] Embedding error:', error);
-      // Fallback to simple hash-based embedding
-      return this.generateFallbackEmbedding(code);
+      console.error('[Neural Network] Embedding error:', error.message || error);
+      const fallback = this.generateFallbackEmbedding(code);
+      this.cacheEmbedding(cacheKey, fallback);
+      return fallback;
     }
   }
 
@@ -204,8 +199,13 @@ class NeuralNetworkSystem {
         this.getCodeEmbedding(code2, language)
       ]);
 
-      // Cosine similarity
-      const similarity = this.cosineSimilarity(embedding1, embedding2);
+      const embeddingSimilarity = this.cosineSimilarity(embedding1, embedding2);
+      const lexicalSimilarity = this.calculateLexicalSimilarity(code1, code2);
+      const structuralSimilarity = this.cosineSimilarity(
+        this.getStructuralFeatures(code1),
+        this.getStructuralFeatures(code2)
+      );
+      const similarity = (embeddingSimilarity * 0.4) + (lexicalSimilarity * 0.3) + (structuralSimilarity * 0.3);
 
       return {
         similarity,
@@ -220,7 +220,7 @@ class NeuralNetworkSystem {
   /**
    * Query neural network model
    */
-  async queryModel(modelName, payload) {
+  async queryModel(modelName, payload, attempt = 0) {
     const modelId = this.models[modelName];
 
     if (!modelId) {
@@ -228,7 +228,12 @@ class NeuralNetworkSystem {
     }
 
     if (this.config.useLocalModels) {
-      return this.queryLocalModel(modelId, payload);
+      return this.queryLocalModel(modelId, payload, modelName);
+    }
+
+    if (!this.config.huggingfaceApiKey) {
+      console.warn(`[Neural Network] Missing HuggingFace API key, using fallback for ${modelId}`);
+      return this.generateFallbackResponse(modelId, payload, modelName);
     }
 
     // Query HuggingFace API
@@ -247,23 +252,23 @@ class NeuralNetworkSystem {
 
       return response.data;
     } catch (error) {
-      if (error.response?.status === 503) {
-        // Model is loading, wait and retry
+      if (error.response?.status === 503 && attempt < 1) {
         await this.sleep(2000);
-        return this.queryModel(modelName, payload);
+        return this.queryModel(modelName, payload, attempt + 1);
       }
-      throw error;
+      console.warn(`[Neural Network] Falling back for ${modelId}:`, error.message || error);
+      return this.generateFallbackResponse(modelId, payload, modelName);
     }
   }
 
   /**
    * Query local model (placeholder for local inference)
    */
-  async queryLocalModel(modelId, payload) {
+  async queryLocalModel(modelId, payload, modelName) {
     // This would integrate with local model inference
     // For now, return mock data
     console.log('[Neural Network] Local model inference not implemented, using fallback');
-    return this.generateFallbackResponse(modelId, payload);
+    return this.generateFallbackResponse(modelId, payload, modelName);
   }
 
   /**
@@ -320,7 +325,7 @@ class NeuralNetworkSystem {
 
     // Normalize complexity (inverse)
     const normalizedComplexity = Math.max(0, 1 - (features.complexity / 50));
-    score += weights.complexity * -1 + weights.complexity * normalizedComplexity;
+    score += weights.complexity * (1 - normalizedComplexity);
 
     score += weights.documentation * features.documentation;
     score += weights.errorHandling * features.errorHandling;
@@ -546,36 +551,42 @@ class NeuralNetworkSystem {
    * Generate fallback embedding (simple hash-based)
    */
   generateFallbackEmbedding(code) {
-    const embedding = new Array(768).fill(0); // CodeBERT dimension
-    
-    // Simple feature-based embedding
-    const features = {
-      length: code.length,
-      lines: code.split('\n').length,
-      functions: (code.match(/function/g) || []).length,
-      classes: (code.match(/class/g) || []).length,
-      comments: (code.match(/\/\//g) || []).length
-    };
+    const dimension = 768;
+    const embedding = new Array(dimension).fill(0);
+    const tokens = this.tokenizeCode(code);
 
-    Object.values(features).forEach((val, idx) => {
-      if (idx < embedding.length) {
-        embedding[idx] = val / 100; // Normalize
-      }
+    tokens.forEach((token, idx) => {
+      const baseHash = Math.abs(this.hashCode(token));
+      const primaryIndex = baseHash % dimension;
+      const secondaryIndex = (baseHash + idx * 7) % dimension;
+      embedding[primaryIndex] += 1;
+      embedding[secondaryIndex] += 0.5;
     });
 
-    return embedding;
+    const bigrams = this.extractBigrams(code);
+    bigrams.forEach((gram, idx) => {
+      const hash = Math.abs(this.hashCode(`bg:${gram}:${idx}`));
+      embedding[hash % dimension] += 0.1;
+    });
+
+    const structural = this.getStructuralFeatures(code);
+    structural.forEach((value, idx) => {
+      embedding[idx] += value;
+    });
+
+    return this.normalizeVector(embedding);
   }
 
   /**
    * Generate fallback response
    */
-  generateFallbackResponse(modelId, payload) {
+  generateFallbackResponse(modelId, payload, modelName = '') {
     // Simple fallback for when models are unavailable
-    if (modelId.includes('completion')) {
-      return [
-        { generated_text: '// TODO: Implement this function' },
-        { generated_text: 'return null;' }
-      ];
+    if (modelName === 'completion' || modelId.includes('completion') || modelId.includes('mlm')) {
+      const prefix = typeof payload?.inputs === 'string' ? payload.inputs : '';
+      return Array.from({ length: 3 }, (_, idx) => ({
+        generated_text: `${prefix}\n// AI completion suggestion ${idx + 1}`.trim()
+      }));
     }
 
     return this.generateFallbackEmbedding(payload.inputs);
@@ -650,7 +661,64 @@ class NeuralNetworkSystem {
     };
   }
 
+  tokenizeCode(code) {
+    return (code.toLowerCase().match(/[a-zA-Z_][a-zA-Z0-9_]*/g) || []);
+  }
+
+  extractBigrams(code) {
+    const cleaned = code.replace(/\s+/g, ' ');
+    const grams = [];
+    for (let i = 0; i < cleaned.length - 1 && grams.length < 512; i++) {
+      grams.push(cleaned.substring(i, i + 2));
+    }
+    return grams;
+  }
+
+  getStructuralFeatures(code) {
+    const lines = code.split('\n');
+    const functions = (code.match(/function\s+\w+/g) || []).length;
+    const classes = (code.match(/class\s+\w+/g) || []).length;
+    const imports = (code.match(/import\s+/g) || []).length;
+    const comments = (code.match(/\/\/|\/\*/g) || []).length;
+
+    return [
+      Math.min(code.length / 1000, 5),
+      Math.min(lines.length / 200, 5),
+      functions / 10,
+      classes / 10,
+      imports / 10,
+      comments / 10
+    ];
+  }
+
+  normalizeVector(vector) {
+    const norm = Math.sqrt(vector.reduce((sum, val) => sum + (val * val), 0));
+    if (!norm) {
+      return vector;
+    }
+    return vector.map((val) => val / norm);
+  }
+
   // Utility functions
+  calculateLexicalSimilarity(code1, code2) {
+    const tokens1 = new Set(this.tokenizeCode(code1));
+    const tokens2 = new Set(this.tokenizeCode(code2));
+
+    if (tokens1.size === 0 || tokens2.size === 0) {
+      return 0;
+    }
+
+    let overlap = 0;
+    tokens1.forEach(token => {
+      if (tokens2.has(token)) {
+        overlap += 1;
+      }
+    });
+
+    const unionSize = new Set([...tokens1, ...tokens2]).size;
+    return overlap / unionSize;
+  }
+
   hashCode(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -658,7 +726,7 @@ class NeuralNetworkSystem {
       hash = ((hash << 5) - hash) + char;
       hash = hash & hash;
     }
-    return hash.toString(36);
+    return hash;
   }
 
   sleep(ms) {

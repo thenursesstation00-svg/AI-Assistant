@@ -12,7 +12,7 @@ const { EventEmitter } = require('events');
 class OptimizationSystem extends EventEmitter {
   constructor() {
     super();
-    this.cache = new Map();
+    this.cacheStore = new Map();
     this.cacheStats = {
       hits: 0,
       misses: 0,
@@ -57,8 +57,8 @@ class OptimizationSystem extends EventEmitter {
     const { ttl = this.config.cacheTTL, tags = [] } = options;
 
     // Check cache
-    if (this.cache.has(key)) {
-      const cached = this.cache.get(key);
+    if (this.cacheStore.has(key)) {
+      const cached = this.cacheStore.get(key);
       
       if (Date.now() - cached.timestamp < ttl) {
         this.cacheStats.hits++;
@@ -69,7 +69,7 @@ class OptimizationSystem extends EventEmitter {
         return cached.value;
       } else {
         // Expired, remove
-        this.cache.delete(key);
+        this.cacheStore.delete(key);
       }
     }
 
@@ -92,11 +92,11 @@ class OptimizationSystem extends EventEmitter {
     const { ttl = this.config.cacheTTL, tags = [] } = options;
 
     // Check cache size limit
-    if (this.cache.size >= this.config.maxCacheSize) {
+    if (this.cacheStore.size >= this.config.maxCacheSize) {
       this.evictLRU();
     }
 
-    this.cache.set(key, {
+    this.cacheStore.set(key, {
       value,
       timestamp: Date.now(),
       lastAccess: Date.now(),
@@ -109,15 +109,15 @@ class OptimizationSystem extends EventEmitter {
    * Get cache value
    */
   get(key) {
-    if (this.cache.has(key)) {
-      const cached = this.cache.get(key);
+    if (this.cacheStore.has(key)) {
+      const cached = this.cacheStore.get(key);
       
       if (Date.now() - cached.timestamp < cached.ttl) {
         cached.lastAccess = Date.now();
         this.cacheStats.hits++;
         return cached.value;
       } else {
-        this.cache.delete(key);
+        this.cacheStore.delete(key);
       }
     }
 
@@ -132,7 +132,7 @@ class OptimizationSystem extends EventEmitter {
     let oldestKey = null;
     let oldestTime = Infinity;
 
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of this.cacheStore.entries()) {
       if (entry.lastAccess < oldestTime) {
         oldestTime = entry.lastAccess;
         oldestKey = key;
@@ -140,7 +140,7 @@ class OptimizationSystem extends EventEmitter {
     }
 
     if (oldestKey) {
-      this.cache.delete(oldestKey);
+      this.cacheStore.delete(oldestKey);
       this.cacheStats.evictions++;
     }
   }
@@ -151,9 +151,9 @@ class OptimizationSystem extends EventEmitter {
   invalidateTag(tag) {
     let count = 0;
     
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of this.cacheStore.entries()) {
       if (entry.tags.includes(tag)) {
-        this.cache.delete(key);
+        this.cacheStore.delete(key);
         count++;
       }
     }
@@ -166,8 +166,8 @@ class OptimizationSystem extends EventEmitter {
    * Clear all cache
    */
   clearCache() {
-    const size = this.cache.size;
-    this.cache.clear();
+    const size = this.cacheStore.size;
+    this.cacheStore.clear();
     console.log(`[Optimization] Cleared ${size} cache entries`);
   }
 
@@ -303,9 +303,9 @@ class OptimizationSystem extends EventEmitter {
     const now = Date.now();
     let cleared = 0;
 
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of this.cacheStore.entries()) {
       if (now - entry.timestamp > entry.ttl * 0.5) { // Clear entries > 50% TTL
-        this.cache.delete(key);
+        this.cacheStore.delete(key);
         cleared++;
       }
     }
@@ -334,9 +334,9 @@ class OptimizationSystem extends EventEmitter {
       const now = Date.now();
       let cleared = 0;
 
-      for (const [key, entry] of this.cache.entries()) {
+      for (const [key, entry] of this.cacheStore.entries()) {
         if (now - entry.timestamp > entry.ttl) {
-          this.cache.delete(key);
+          this.cacheStore.delete(key);
           cleared++;
         }
       }
@@ -353,22 +353,27 @@ class OptimizationSystem extends EventEmitter {
    * Database query optimization helper
    */
   optimizeQuery(query, params = {}) {
-    // Add indexes suggestions
     const suggestions = [];
+    const normalized = query.toLowerCase();
+    const hasIndexHint = normalized.includes('index');
+    const isSimpleSelect = /select\s+[^*]+\s+from/i.test(query) && !/join/i.test(query);
+    const isPrimaryKeyFilter = /where\s+[\w.]*id\s*=\s*[^\s]+/i.test(query) && !/and|or/i.test(query);
 
-    if (query.includes('WHERE') && !query.includes('INDEX')) {
-      suggestions.push('Consider adding index on WHERE clause columns');
+    if (normalized.includes('where') && !hasIndexHint) {
+      if (!(isSimpleSelect && isPrimaryKeyFilter)) {
+        suggestions.push('Consider adding index on WHERE clause columns');
+      }
     }
 
-    if (query.includes('JOIN') && !query.includes('INDEX')) {
+    if (normalized.includes('join') && !hasIndexHint) {
       suggestions.push('Consider adding index on JOIN columns');
     }
 
-    if (query.includes('ORDER BY') && !query.includes('INDEX')) {
+    if (normalized.includes('order by') && !hasIndexHint) {
       suggestions.push('Consider adding index on ORDER BY columns');
     }
 
-    if (query.includes('SELECT *')) {
+    if (/select\s+\*/i.test(query)) {
       suggestions.push('Avoid SELECT *, specify needed columns');
     }
 
@@ -486,7 +491,7 @@ class OptimizationSystem extends EventEmitter {
 
     return {
       cache: {
-        size: this.cache.size,
+        size: this.cacheStore.size,
         maxSize: this.config.maxCacheSize,
         hits: this.cacheStats.hits,
         misses: this.cacheStats.misses,

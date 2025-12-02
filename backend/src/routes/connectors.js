@@ -1,15 +1,23 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { getAuthorizeUrl } = require('../utils/getCopilotAuthorizeUrl');
 
 const router = express.Router();
+
+const isCopilotConfigured = Boolean(
+  process.env.GITHUB_COPILOT_CLIENT_ID ||
+  process.env.GITHUB_CLIENT_ID ||
+  process.env.COPILOT_CLIENT_ID
+);
 
 // Connector scaffolds are disabled by default. They provide endpoints for OAuth setup and status.
 // GET /api/admin/connectors - list available connectors and whether enabled
 router.get('/', (req, res) => {
   const connectors = [
     { id: 'gmail', name: 'Gmail', enabled: !!process.env.GMAIL_CLIENT_ID },
-    { id: 'google_calendar', name: 'Google Calendar', enabled: !!process.env.GCAL_CLIENT_ID }
+    { id: 'google_calendar', name: 'Google Calendar', enabled: !!process.env.GCAL_CLIENT_ID },
+    { id: 'github_copilot', name: 'GitHub Copilot', enabled: isCopilotConfigured }
   ];
   res.json({ connectors });
 });
@@ -31,6 +39,18 @@ router.get('/:id/oauth/start', (req, res) => {
     const scope = encodeURIComponent('https://www.googleapis.com/auth/calendar.readonly');
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GCAL_CLIENT_ID}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirect)}`;
     return res.json({ url, redirect });
+  }
+  if(id === 'github_copilot'){
+    try {
+      const url = getAuthorizeUrl({
+        state: req.query.state,
+        code_challenge: req.query.code_challenge,
+        redirect_uri: req.query.redirect_uri
+      });
+      return res.json({ url });
+    } catch (error) {
+      return res.status(400).json({ error: 'not_enabled', message: error.message });
+    }
   }
   res.status(404).json({ error: 'unknown_connector' });
 });

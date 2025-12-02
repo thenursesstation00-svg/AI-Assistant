@@ -107,15 +107,21 @@ class MetaProgrammingEngine {
    * Extract import statements
    */
   extractImports(code) {
-    const imports = [];
-    const importRegex = /(?:import|require)\s*\(?['"]([^'"]+)['"]\)?/g;
+    const imports = new Set();
+
+    const esmRegex = /import\s+(?:[\w*{}\s,]+from\s+)?['"]([^'"]+)['"]/g;
+    const cjsRegex = /require\(\s*['"]([^'"]+)['"]\s*\)/g;
     let match;
 
-    while ((match = importRegex.exec(code)) !== null) {
-      imports.push(match[1]);
+    while ((match = esmRegex.exec(code)) !== null) {
+      imports.add(match[1]);
     }
 
-    return imports;
+    while ((match = cjsRegex.exec(code)) !== null) {
+      imports.add(match[1]);
+    }
+
+    return Array.from(imports);
   }
 
   /**
@@ -139,25 +145,26 @@ class MetaProgrammingEngine {
   calculateComplexity(code) {
     let complexity = 1; // Base complexity
 
-    // Count decision points
     const patterns = [
-      /\bif\s*\(/g,
-      /\belse\s+if\s*\(/g,
-      /\bwhile\s*\(/g,
-      /\bfor\s*\(/g,
-      /\bcase\s+/g,
-      /\bcatch\s*\(/g,
-      /\&\&/g,
-      /\|\|/g,
-      /\?/g
+      { regex: /\bif\s*\(/g, weight: 1 },
+      { regex: /\belse\s+if\s*\(/g, weight: 1 },
+      { regex: /\bwhile\s*\(/g, weight: 2 },
+      { regex: /\bfor\s*\(/g, weight: 2 },
+      { regex: /\bcase\s+/g, weight: 1 },
+      { regex: /\bcatch\s*\(/g, weight: 1 },
+      { regex: /\&\&/g, weight: 0.5 },
+      { regex: /\|\|/g, weight: 0.5 },
+      { regex: /\?/g, weight: 0.5 }
     ];
 
-    for (const pattern of patterns) {
-      const matches = code.match(pattern);
-      if (matches) complexity += matches.length;
+    for (const { regex, weight } of patterns) {
+      const matches = code.match(regex);
+      if (matches) {
+        complexity += matches.length * weight;
+      }
     }
 
-    return complexity;
+    return Math.max(1, Math.round(complexity));
   }
 
   /**
@@ -296,16 +303,17 @@ class MetaProgrammingEngine {
    * Add error handling to async functions
    */
   addErrorHandling(code) {
-    // Add try-catch to async functions without it
-    return code.replace(
-      /(async\s+(?:function\s+\w+|\(\w*\)\s*=>)\s*{)([\s\S]*?)(\n})/g,
-      (match, funcStart, body, funcEnd) => {
-        if (!/try\s*{/.test(body)) {
-          return `${funcStart}\n  try {${body.split('\n').map(line => '  ' + line).join('\n')}\n  } catch (error) {\n    console.error('Error:', error);\n    throw error;\n  }${funcEnd}`;
-        }
-        return match;
-      }
+    let transformed = this.wrapAsyncFunctionsWithTryCatch(
+      code,
+      /async\s+function\s+\w+\s*\([^)]*\)\s*{/g
     );
+
+    transformed = this.wrapAsyncFunctionsWithTryCatch(
+      transformed,
+      /(?:const|let|var)\s+\w+\s*=\s*async\s*\([^)]*\)\s*=>\s*{/g
+    );
+
+    return transformed;
   }
 
   /**
@@ -350,6 +358,70 @@ class MetaProgrammingEngine {
     });
 
     return result;
+  }
+
+  wrapAsyncFunctionsWithTryCatch(code, regex) {
+    let updated = code;
+    let match;
+
+    while ((match = regex.exec(updated)) !== null) {
+      const openBraceIndex = updated.indexOf('{', match.index);
+      if (openBraceIndex === -1) continue;
+
+      const closeIndex = this.findClosingBrace(updated, openBraceIndex);
+      if (closeIndex === -1) continue;
+
+      const body = updated.slice(openBraceIndex + 1, closeIndex);
+      if (/try\s*{/.test(body)) {
+        continue;
+      }
+
+      const baseIndent = this.getIndentationForIndex(updated, openBraceIndex);
+      const wrappedBody = this.formatTryCatchBody(body, baseIndent);
+
+      updated = `${updated.slice(0, openBraceIndex + 1)}\n${wrappedBody}${updated.slice(closeIndex)}`;
+      regex.lastIndex = 0; // reset to ensure fresh matches after mutation
+    }
+
+    return updated;
+  }
+
+  findClosingBrace(code, openIndex) {
+    let depth = 0;
+    for (let i = openIndex; i < code.length; i++) {
+      const char = code[i];
+      if (char === '{') depth++;
+      else if (char === '}') {
+        depth--;
+        if (depth === 0) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  getIndentationForIndex(code, index) {
+    const lastNewline = code.lastIndexOf('\n', index);
+    if (lastNewline === -1) return '';
+    const line = code.slice(lastNewline + 1, index);
+    const match = line.match(/^[ \t]*/);
+    return match ? match[0] : '';
+  }
+
+  formatTryCatchBody(body, baseIndent) {
+    const trimmedLines = body.split('\n').map(line => line.trimEnd());
+    const content = trimmedLines
+      .map(line => {
+        if (!line.trim()) return '';
+        return `${baseIndent}    ${line.trimStart()}`;
+      })
+      .join('\n')
+      .trimEnd();
+
+    const innerBlock = content ? `${content}\n` : '';
+
+    return `${baseIndent}  try {\n${innerBlock}${baseIndent}  } catch (error) {\n${baseIndent}    console.error('Error:', error);\n${baseIndent}    throw error;\n${baseIndent}  }\n${baseIndent}`;
   }
 
   /**
@@ -459,16 +531,18 @@ class MetaProgrammingEngine {
             throw new Error(`Tests failed, changes rolled back: ${testError.message}`);
           }
         }
-
-        // Record modification
-        this.modificationHistory.push({
-          timestamp: new Date().toISOString(),
-          file: targetFile,
-          backup: backupPath,
-          changes: result.changes,
-          improvements
-        });
       }
+
+      this.modificationHistory.push({
+        timestamp: new Date().toISOString(),
+        file: targetFile,
+        backup: backupPath,
+        changes: result.changes,
+        improvements,
+        dryRun,
+        success: true,
+        applied: !dryRun
+      });
 
       return {
         success: true,

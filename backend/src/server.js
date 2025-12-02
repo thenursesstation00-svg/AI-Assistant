@@ -123,6 +123,10 @@ const workspaceRoutes = require('./routes/workspace');
 const scrapeRoutes = require('./routes/scrape');
 const aiIntelligenceRoutes = require('./routes/aiIntelligence');
 const composePromptRoutes = require('./routes/composePrompt');
+const systemRoutes = require('./routes/system');
+const settingsRoutes = require('./routes/settings');
+const aiToolsRoutes = require('./routes/aiTools');
+const gitRoutes = require('./routes/git');
 const { startAvWorker } = require('./workers/avWorker');
 
 const app = express();
@@ -197,6 +201,11 @@ app.use('/api/stream', requireAPIKey, streamingRoutes);
 app.use('/api/workspace', requireAPIKey, workspaceRoutes);
 app.use('/api/scrape', requireAPIKey, scrapeRoutes);
 app.use('/api/ai', requireAPIKey, aiIntelligenceRoutes);
+app.use('/api/ai', requireAPIKey, aiToolsRoutes);
+app.use('/api/system', requireAPIKey, systemRoutes);
+app.use('/api/v1', requireAPIKey, systemRoutes);
+app.use('/api/settings', requireAPIKey, settingsRoutes);
+app.use('/api/git', requireAPIKey, gitRoutes);
 app.use('/api/keypool', requireAPIKey, require('./routes/keypool'));
 
 app.get('/health', (req, res) => {
@@ -217,36 +226,67 @@ const server = app.listen(port, (err) => {
     console.error('Failed to start backend server:', err);
     process.exit(1);
   }
-  console.log(`[DEBUG] Backend listening on port ${port}`);
+  console.log(JSON.stringify({
+    level: 'info',
+    message: 'Backend server started',
+    port: port,
+    env: process.env.NODE_ENV || 'development',
+    nodeVersion: process.version,
+    timestamp: new Date().toISOString()
+  }));
   console.log(`Access via: http://127.0.0.1:${port} or http://localhost:${port}`);
 });
 
 // Global error handlers
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-  // Don't exit, just log
+  console.error(JSON.stringify({
+    level: 'fatal',
+    message: 'Uncaught Exception',
+    error: err.message,
+    stack: err.stack,
+    timestamp: new Date().toISOString()
+  }));
+  // Don't exit immediately, allow pending requests to finish if possible, but usually fatal
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Don't exit, just log
+  console.error(JSON.stringify({
+    level: 'error',
+    message: 'Unhandled Rejection',
+    reason: reason,
+    timestamp: new Date().toISOString()
+  }));
 });
 
-process.on('SIGTERM', () => {
-  console.log('[DEBUG] SIGTERM received, closing server gracefully');
+const gracefulShutdown = (signal) => {
+  console.log(JSON.stringify({
+    level: 'info',
+    message: `Received ${signal}, closing server gracefully`,
+    timestamp: new Date().toISOString()
+  }));
+  
   server.close(() => {
-    console.log('[DEBUG] Server closed');
+    console.log(JSON.stringify({
+      level: 'info',
+      message: 'HTTP server closed',
+      timestamp: new Date().toISOString()
+    }));
     process.exit(0);
   });
-});
 
-process.on('SIGINT', () => {
-  console.log('[DEBUG] SIGINT received, closing server gracefully');
-  server.close(() => {
-    console.log('[DEBUG] Server closed');
-    process.exit(0);
-  });
-});
+  // Force exit if graceful shutdown fails
+  setTimeout(() => {
+    console.error(JSON.stringify({
+      level: 'error',
+      message: 'Could not close connections in time, forcefully shutting down',
+      timestamp: new Date().toISOString()
+    }));
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 try{
   console.log('[DEBUG] Starting AV worker');

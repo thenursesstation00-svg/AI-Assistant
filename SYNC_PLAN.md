@@ -96,3 +96,46 @@ AI-Assistant/
 - Use descriptive names: `chat.test.js` not `test1.js`
 
 ## Automated Sync Script
+
+Run `scripts/sync-project.ps1` from the repository root whenever you want an automated pass through the backup, inventory, and validation steps:
+
+```powershell
+cd AI-Assistant
+pwsh ./scripts/sync-project.ps1 -CreateBackup -GenerateInventory -ValidateStructure
+```
+
+The script avoids destructive git operations so you can inspect the generated CSV inventory and structural report before force-syncing anything.
+
+## Platform Sync Checklist (December 2025)
+
+Follow this loop whenever you need every surface (VS Code, GitHub, additional local machines, and Codespaces) back in alignment:
+
+### 1. VS Code / Current Workspace
+- `git status -sb` to confirm only intentional edits remain.
+- `npm install`, `cd backend && npm ci`, `cd ../frontend && npm ci` to keep lockfiles deterministic.
+- Run targeted Jest suites (`npm test -- neuralNetwork.test.js -i --runInBand`, `npm test -- tools.test.js`) before pushing.
+
+### 2. GitHub Repository
+- `git fetch origin` then `git status -sb --ahead-behind` to inspect divergence.
+- `git push origin <branch>` once tests pass; if history was rewritten, follow with `git push --force-with-lease`.
+- Monitor GitHub Actions after each push and rerun failing jobs via the Actions UI or `gh workflow run`.
+
+### 3. Additional Local Machines
+- Backup stale folders (`Rename-Item AI-Assistant AI-Assistant-OLD-$(Get-Date -Format 'yyyy-MM-dd')`).
+- Fresh clone (`git clone https://github.com/thenursesstation00-svg/AI-Assistant.git`) and repeat dependency install/test cycle.
+
+### 4. GitHub Codespaces
+- Delete outdated codespaces tied to older commits.
+- Create a new codespace from `main`, run installs/tests, and store secrets via the Codespaces secrets UI.
+
+Document completion of each surface in `SYNC_COMPLETE_YYYY-MM-DD.md` so audits know which environment is authoritative.
+
+## GitHub Issue Remediation Playbook
+
+1. **Triage** – Label open issues/PRs (`sync`, `bug`, `docs`) and capture reproduction notes.
+2. **Reproduce Locally** – Follow the checklist above to replicate the problem in VS Code.
+3. **Fix + Reference** – Patch code/tests and commit with the issue number (e.g., `fix: resolve sync regression (#123)`).
+4. **Verify CI** – Push, watch GitHub Actions, and rerun failed workflows if necessary.
+5. **Close Out** – Merge, close the issue, and summarize the fix with links to the resolving PR/commit.
+
+Running this loop every time you push keeps GitHub the canonical record of project health.

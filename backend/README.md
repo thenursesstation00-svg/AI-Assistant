@@ -10,6 +10,19 @@
 
 The API listens at http://localhost:3001
 
+## Development Workflow (Nodemon)
+
+We use `nodemon` to automatically restart the server when file changes are detected.
+
+- **Start Development Server**:
+  ```bash
+  npm run dev
+  ```
+- **Manual Restart**: Type `rs` and press Enter in the terminal running nodemon.
+- **Troubleshooting**:
+  - If the server crashes immediately, check the logs for syntax errors.
+  - If `EADDRINUSE` errors occur, ensure no other process is using port 3001 (`lsof -i :3001` or `netstat -ano | findstr :3001`).
+
 ## Authentication & security notes
 
 - This backend expects frontend-to-backend requests to authenticate using a dedicated backend API key header `x-api-key`.

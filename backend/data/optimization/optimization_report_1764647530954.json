@@ -1,0 +1,52 @@
+{
+  "timestamp": "2025-12-02T03:52:10.954Z",
+  "summary": {
+    "cacheEfficiency": "50.00%",
+    "memoryUsage": "46.70%",
+    "avgResponseTime": "51.55ms",
+    "p95ResponseTime": "97.00ms"
+  },
+  "recommendations": [],
+  "detailedStats": {
+    "cache": {
+      "size": 1,
+      "maxSize": 3,
+      "hits": 7,
+      "misses": 7,
+      "hitRate": "50.00%",
+      "evictions": 1
+    },
+    "memory": {
+      "current": {
+        "heapUsed": 37177424,
+        "heapTotal": 79609856,
+        "external": 5981774,
+        "rss": 129404928,
+        "heapUsedMB": "35.46",
+        "heapTotalMB": "75.92",
+        "percentUsed": "46.70"
+      },
+      "snapshots": 1,
+      "threshold": "85%"
+    },
+    "performance": {
+      "totalMetrics": 104,
+      "operations": [
+        "test_operation",
+        "async_test",
+        "percentile_test",
+        "error_test",
+        "test_op"
+      ]
+    }
+  },
+  "performanceStats": {
+    "count": 104,
+    "avg": 51.54807692307692,
+    "min": 0,
+    "max": 150,
+    "p50": 52,
+    "p95": 97,
+    "p99": 100
+  }
+}

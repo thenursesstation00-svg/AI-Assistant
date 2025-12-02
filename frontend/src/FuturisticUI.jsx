@@ -1,5 +1,5 @@
 // FuturisticUI.jsx - Next-gen personal assistant interface
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import useWindowManager from './components/WindowManager';
 import Window from './components/Window';
 import './FuturisticUI.css';
@@ -12,6 +12,7 @@ import AgentManagerWindow from './windows/AgentManagerWindow';
 import TerminalWindow from './windows/TerminalWindow';
 import SystemMonitorWindow from './windows/SystemMonitorWindow';
 import ReflectionWindow from './windows/ReflectionWindow';
+import DeveloperControlPanelWindow from './windows/DeveloperControlPanelWindow';
 
 export default function FuturisticUI() {
   const windowManager = useWindowManager({
@@ -41,6 +42,13 @@ export default function FuturisticUI() {
 
   const [particles, setParticles] = useState([]);
   const [time, setTime] = useState(new Date());
+  const sessionRef = useRef(`sess_${Date.now()}`);
+
+  const sharedUiState = useMemo(() => ({
+    sessionId: sessionRef.current,
+    activeWindow: windowManager.activeWindow,
+    windows: windowManager.windows
+  }), [windowManager.activeWindow, windowManager.windows]);
 
   // Generate floating particles
   useEffect(() => {
@@ -66,6 +74,7 @@ export default function FuturisticUI() {
     { id: 'terminal', icon: '💻', label: 'Terminal', type: 'terminal' },
     { id: 'monitor', icon: '📊', label: 'System', type: 'monitor' },
     { id: 'reflection', icon: '🧠', label: 'Reflection', type: 'reflection' },
+    { id: 'control-panel', icon: '🛠', label: 'Control', type: 'controlPanel' },
     { id: 'settings', icon: '⚙️', label: 'Settings', type: 'settings' }
   ];
 
@@ -79,6 +88,7 @@ export default function FuturisticUI() {
       terminal: { title: 'Terminal', icon: '💻', width: 800, height: 500 },
       monitor: { title: 'System Monitor', icon: '📊', width: 600, height: 500 },
       reflection: { title: 'Personal Reflection', icon: '🧠', width: 700, height: 650 },
+      controlPanel: { title: 'Developer Control Panel', icon: '🛠', width: 900, height: 650 },
       settings: { title: 'Settings', icon: '⚙️', width: 600, height: 500 }
     };
 
@@ -92,7 +102,7 @@ export default function FuturisticUI() {
   const renderWindowContent = (window) => {
     switch (window.type) {
       case 'chat':
-        return <ChatWindow />;
+        return <ChatWindow uiState={sharedUiState} />;
       case 'devtools':
         return <DevToolsWindow />;
       case 'files':
@@ -105,6 +115,8 @@ export default function FuturisticUI() {
         return <SystemMonitorWindow />;
       case 'reflection':
         return <ReflectionWindow />;
+      case 'controlPanel':
+        return <DeveloperControlPanelWindow uiState={sharedUiState} />;
       default:
         return (
           <div style={{ padding: '20px', textAlign: 'center', color: '#a0a0d0' }}>
