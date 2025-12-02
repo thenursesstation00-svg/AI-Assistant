@@ -13,6 +13,7 @@ import TerminalWindow from './windows/TerminalWindow';
 import SystemMonitorWindow from './windows/SystemMonitorWindow';
 import ReflectionWindow from './windows/ReflectionWindow';
 import DeveloperControlPanelWindow from './windows/DeveloperControlPanelWindow';
+import SearchWindow from './windows/SearchWindow';
 
 export default function FuturisticUI() {
   const windowManager = useWindowManager({
@@ -28,13 +29,13 @@ export default function FuturisticUI() {
         height: 700
       },
       {
-        id: 'devtools-1',
-        title: 'Developer Tools',
-        icon: '⚡',
-        type: 'devtools',
+        id: 'search-1',
+        title: 'Web Search',
+        icon: '🔍',
+        type: 'search',
         x: 750,
         y: 100,
-        width: 800,
+        width: 500,
         height: 600
       }
     ]
@@ -68,6 +69,7 @@ export default function FuturisticUI() {
   // Dock items configuration
   const dockItems = [
     { id: 'chat', icon: '💬', label: 'Chat', type: 'chat' },
+    { id: 'search', icon: '🔍', label: 'Search', type: 'search' },
     { id: 'devtools', icon: '⚡', label: 'Dev Tools', type: 'devtools' },
     { id: 'files', icon: '📁', label: 'Files', type: 'files' },
     { id: 'agents', icon: '🤖', label: 'AI Agents', type: 'agents' },
@@ -82,6 +84,7 @@ export default function FuturisticUI() {
   const handleDockClick = (type) => {
     const windowConfigs = {
       chat: { title: 'AI Assistant', icon: '💬', width: 600, height: 700 },
+      search: { title: 'Web Search', icon: '🔍', width: 500, height: 600 },
       devtools: { title: 'Developer Tools', icon: '⚡', width: 900, height: 650 },
       files: { title: 'File Explorer', icon: '📁', width: 700, height: 600 },
       agents: { title: 'AI Agent Manager', icon: '🤖', width: 800, height: 700 },
@@ -103,6 +106,8 @@ export default function FuturisticUI() {
     switch (window.type) {
       case 'chat':
         return <ChatWindow uiState={sharedUiState} />;
+      case 'search':
+        return <SearchWindow uiState={sharedUiState} />;
       case 'devtools':
         return <DevToolsWindow />;
       case 'files':

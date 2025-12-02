@@ -13,7 +13,15 @@ export default function ChatWindow({ uiState, callLLM }) {
   const [inputText, setInputText] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('claude-3-5-sonnet-20240620');
   const messagesEndRef = useRef(null);
+
+  const availableModels = [
+    { id: 'claude-3-5-sonnet-20240620', name: 'Claude 3.5 Sonnet' },
+    { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },
+    { id: 'gpt-4o', name: 'GPT-4o' },
+    { id: 'gpt-4-turbo-preview', name: 'GPT-4 Turbo' }
+  ];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -65,12 +73,14 @@ export default function ChatWindow({ uiState, callLLM }) {
       // Use callLLM if provided, else fallback to sendMessage
       let replyContent = null;
       if (callLLM) {
-        replyContent = await callLLM(llmMessages);
+        replyContent = await callLLM(llmMessages, selectedModel);
       } else {
         // Fallback: use sendMessage API (legacy)
         const response = await sendMessage({
           messages: llmMessages.map(m => ({ role: m.role, content: m.content })),
-          fileIds: currentFiles.map(f => f.id)
+          fileIds: currentFiles.map(f => f.id),
+          model: selectedModel,
+          provider: selectedModel.startsWith('gpt') ? 'openai' : 'anthropic'
         });
         replyContent = response.content;
       }
@@ -94,6 +104,18 @@ export default function ChatWindow({ uiState, callLLM }) {
 
   return (
     <div className="chat-window">
+      <div className="chat-header" style={{ padding: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.9rem', color: '#aaa' }}>Model:</span>
+        <select 
+          value={selectedModel} 
+          onChange={(e) => setSelectedModel(e.target.value)}
+          style={{ background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid #444', borderRadius: '4px', padding: '4px 8px' }}
+        >
+          {availableModels.map(m => (
+            <option key={m.id} value={m.id}>{m.name}</option>
+          ))}
+        </select>
+      </div>
       <div className="chat-messages">
         {messages.map((msg, idx) => (
           <div key={idx} className={`chat-message ${msg.role}`}>
